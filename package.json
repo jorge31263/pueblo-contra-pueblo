@@ -1,0 +1,14 @@
+{
+  "name": "pueblo-contra-pueblo-datos",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "datos": "tsx pipeline/main.ts"
+  },
+  "devDependencies": {
+    "tsx": "4.19.2",
+    "typescript": "5.7.2",
+    "vitest": "2.1.8"
+  }
+}
