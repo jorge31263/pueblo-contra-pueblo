@@ -5,7 +5,12 @@
  * y cada una se normaliza por su cuenta.
  */
 
-const ARTICULOS = new Set(["el", "la", "los", "las", "a", "as", "o", "os", "es", "l'", "s'"]);
+const ARTICULOS = new Set([
+  // castellano y gallego
+  "el", "la", "los", "las", "a", "as", "o", "os",
+  // catalán, valenciano y balear
+  "es", "les", "els", "sa", "ses", "l'", "s'",
+]);
 
 function normalizarForma(forma: string): string {
   const corte = forma.lastIndexOf(", ");

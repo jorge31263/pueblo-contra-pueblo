@@ -18,14 +18,21 @@ const DEFINICIONES: Record<string, string> = {
   "EPSG:25829": "+proj=utm +zone=29 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
   "EPSG:25830": "+proj=utm +zone=30 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
   "EPSG:25831": "+proj=utm +zone=31 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
+  // Canarias se publica aparte y en REGCAN95, no en ETRS89.
+  "EPSG:4082": "+proj=utm +zone=27 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
+  "EPSG:4083": "+proj=utm +zone=28 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
+  "EPSG:4084": "+proj=utm +zone=28 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
 };
 
 /** Campos donde las descargas del CNIG guardan el código del municipio. */
 const CAMPOS_CODIGO = ["CODIGOINE", "COD_INE", "CODINE", "NATCODE", "C_MUNI_IN"];
 
+function areaM2(geometria: Polygon | MultiPolygon): number {
+  return area({ type: "Feature", geometry: geometria, properties: {} });
+}
+
 export function areaKm2(geometria: Polygon | MultiPolygon): number {
-  const m2 = area({ type: "Feature", geometry: geometria, properties: {} });
-  return Math.round((m2 / 1e6) * 10) / 10;
+  return Math.round((areaM2(geometria) / 1e6) * 10) / 10;
 }
 
 export function reproyectarAWgs84(geometria: Geometry, crs: string): Geometry {
@@ -54,9 +61,15 @@ export function codigoIneDe(propiedades: Record<string, unknown>): string | unde
     if (bruto === undefined || bruto === null) continue;
 
     const digitos = String(bruto).replace(/\D/g, "");
-    if (digitos.length < 4) continue;
 
-    return digitos.length <= 5 ? digitos.padStart(5, "0") : digitos.slice(-5);
+    // Un código de cinco dígitos o menos es el del municipio. El NATCODE del
+    // CNIG son nueve: 34 (país) + 2 de comunidad + 2 de provincia + 3 de
+    // municipio, así que los cinco últimos son el código INE. Cualquier otra
+    // longitud es otro fichero (recintos provinciales, por ejemplo) y recortar
+    // a ciegas daría un código de cinco dígitos válido y falso.
+    if (digitos.length >= 4 && digitos.length <= 5) return digitos.padStart(5, "0");
+    if (digitos.length === 9) return digitos.slice(-5);
+    continue;
   }
   return undefined;
 }
@@ -67,7 +80,7 @@ export function codigoIneDe(propiedades: Record<string, unknown>): string | unde
  */
 export async function leerAreas(rutaShp: string, crs: string): Promise<Map<string, number>> {
   const fuente = await open(rutaShp);
-  const areas = new Map<string, number>();
+  const metrosCuadrados = new Map<string, number>();
 
   for (let registro = await fuente.read(); !registro.done; registro = await fuente.read()) {
     const rasgo = registro.value;
@@ -76,11 +89,14 @@ export async function leerAreas(rutaShp: string, crs: string): Promise<Map<strin
     const codigo = codigoIneDe(rasgo.properties ?? {});
     if (codigo === undefined) continue;
 
-    const geometria = reproyectarAWgs84(rasgo.geometry as Geometry, crs);
-    if (geometria.type !== "Polygon" && geometria.type !== "MultiPolygon") continue;
+    const geometria = reproyectarAWgs84(rasgo.geometry as Geometry, crs) as Polygon | MultiPolygon;
 
-    areas.set(codigo, Math.round(((areas.get(codigo) ?? 0) + areaKm2(geometria)) * 10) / 10);
+    // Se acumula en metros cuadrados y se redondea una sola vez: redondear
+    // cada recinto a un decimal antes de sumarlo hace desaparecer los islotes.
+    metrosCuadrados.set(codigo, (metrosCuadrados.get(codigo) ?? 0) + areaM2(geometria));
   }
 
-  return areas;
+  return new Map(
+    [...metrosCuadrados].map(([codigo, m2]) => [codigo, Math.round((m2 / 1e6) * 10) / 10]),
+  );
 }

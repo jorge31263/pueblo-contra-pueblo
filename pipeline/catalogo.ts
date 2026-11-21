@@ -17,7 +17,12 @@ export type EntradaCatalogo = {
   areas: Map<string, number>;
 };
 
-export type MotivoDescarte = "demasiado-grande" | "sin-nombre" | "sin-altitud" | "sin-extension";
+export type MotivoDescarte =
+  | "demasiado-grande"
+  | "sin-nombre"
+  | "sin-altitud"
+  | "sin-extension"
+  | "valor-imposible";
 
 export type ResultadoCatalogo = {
   pueblos: Pueblo[];
@@ -26,6 +31,20 @@ export type ResultadoCatalogo = {
 
 /** El corte del catálogo: menos de 20.000 habitantes (ADR 0002). */
 export const LIMITE_HABITANTES = 20000;
+
+/**
+ * Rangos de lo que puede ser un municipio español. No son un capricho: una
+ * proyección mal aplicada o un polígono degenerado no dan error, dan cifras
+ * (ADR 0005). Esto convierte ese fallo mudo en una línea del informe.
+ *
+ * El municipio más extenso ronda los 1.750 km² (Cáceres) y el más pequeño no
+ * llega a 0,1 km² (Emperador). La altitud admite valores algo negativos por
+ * los municipios bajo el nivel del mar del litoral.
+ */
+export const RANGOS = {
+  extension: { minimo: 0.1, maximo: 1800 },
+  altitud: { minimo: -10, maximo: 2100 },
+} as const;
 
 /**
  * El padrón manda: es la única fuente que dice qué municipios existen hoy, así
@@ -40,6 +59,7 @@ export function construirCatalogo(entrada: EntradaCatalogo): ResultadoCatalogo {
     "sin-nombre": [],
     "sin-altitud": [],
     "sin-extension": [],
+    "valor-imposible": [],
   };
 
   for (const id of [...entrada.padron.keys()].sort()) {
@@ -65,6 +85,16 @@ export function construirCatalogo(entrada: EntradaCatalogo): ResultadoCatalogo {
     const extension = entrada.areas.get(id);
     if (extension === undefined) {
       descartes["sin-extension"].push(id);
+      continue;
+    }
+
+    if (
+      extension < RANGOS.extension.minimo ||
+      extension > RANGOS.extension.maximo ||
+      altitud < RANGOS.altitud.minimo ||
+      altitud > RANGOS.altitud.maximo
+    ) {
+      descartes["valor-imposible"].push(id);
       continue;
     }
 

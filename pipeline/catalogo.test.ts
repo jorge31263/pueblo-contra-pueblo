@@ -72,3 +72,30 @@ describe("construirCatalogo", () => {
     expect(r.pueblos.map((p) => p.id)).toEqual(["01001", "33026", "50249"]);
   });
 });
+
+describe("construirCatalogo: valores imposibles", () => {
+  it("descarta la extensión de cero, que delata un polígono degenerado", () => {
+    const r = construirCatalogo(entrada({ areas: new Map([["50249", 0]]) }));
+    expect(r.pueblos).toHaveLength(0);
+    expect(r.descartes["valor-imposible"]).toEqual(["50249"]);
+  });
+
+  it("descarta la extensión mayor que el municipio más grande de España", () => {
+    expect(construirCatalogo(entrada({ areas: new Map([["50249", 2500]]) })).pueblos).toHaveLength(0);
+  });
+
+  it("descarta la altitud fuera del rango de España", () => {
+    expect(construirCatalogo(entrada({ altitudes: new Map([["50249", 4000]]) })).pueblos).toHaveLength(0);
+    expect(construirCatalogo(entrada({ altitudes: new Map([["50249", -50]]) })).pueblos).toHaveLength(0);
+  });
+
+  it("acepta la altitud cero y la ligeramente negativa de los municipios costeros", () => {
+    expect(construirCatalogo(entrada({ altitudes: new Map([["50249", 0]]) })).pueblos).toHaveLength(1);
+    expect(construirCatalogo(entrada({ altitudes: new Map([["50249", -5]]) })).pueblos).toHaveLength(1);
+  });
+
+  it("acepta la extensión diminuta de un municipio real", () => {
+    // Emperador (Valencia) ronda los 0,03 km².
+    expect(construirCatalogo(entrada({ areas: new Map([["50249", 0.1]]) })).pueblos).toHaveLength(1);
+  });
+});

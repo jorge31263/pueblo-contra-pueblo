@@ -27,12 +27,21 @@ function filasDelPadron(csv: string): FilaPadron[] {
     skipEmptyLines: true,
   });
 
+  const primera = registros[0];
+  if (primera !== undefined && !(COLUMNAS.total in primera)) {
+    throw new Error(
+      `El CSV del padrón no trae la columna "${COLUMNAS.total}": ` +
+        `cabeceras encontradas [${Object.keys(primera).join(", ")}]`,
+    );
+  }
+
   const totales = registros.filter((r) => (r[COLUMNAS.sexo] ?? SEXO_TOTAL).trim() === SEXO_TOTAL);
 
   const periodos = totales.map((r) => r[COLUMNAS.periodo]?.trim()).filter((p): p is string => !!p);
   const ultimoPeriodo = periodos.length > 0 ? periodos.reduce((a, b) => (b > a ? b : a)) : undefined;
 
   const filas: FilaPadron[] = [];
+  let sinCodigo = 0;
   for (const registro of totales) {
     const periodo = registro[COLUMNAS.periodo]?.trim();
     if (ultimoPeriodo !== undefined && periodo !== ultimoPeriodo) continue;
@@ -42,12 +51,28 @@ function filasDelPadron(csv: string): FilaPadron[] {
     if (municipio === undefined || total === undefined) continue;
 
     const partes = /^(\d{5})\s+(\S.*)$/.exec(municipio);
-    if (partes === null) continue;
+    if (partes === null) {
+      sinCodigo += 1;
+      continue;
+    }
 
+    // Number("") es 0, así que la celda vacía se colaría como un pueblo
+    // fantasma de cero habitantes, y en el juego un cero rompe la proporción
+    // de la separación mínima.
+    if (total === "") continue;
     const habitantes = Number(total.replace(/[.\s]/g, ""));
-    if (!Number.isInteger(habitantes)) continue;
+    if (!Number.isInteger(habitantes) || habitantes <= 0) continue;
 
     filas.push({ codigo: partes[1]!, nombre: partes[2]!.trim(), habitantes });
+  }
+
+  // Si el formato de la columna cambia, las filas caen en silencio y el cruce
+  // con las otras fuentes sale impecable sobre un padrón mutilado.
+  if (sinCodigo > filas.length) {
+    throw new Error(
+      `${sinCodigo} filas del padrón no traen un código de municipio reconocible ` +
+        `frente a ${filas.length} que sí: ha cambiado el formato de la columna "${COLUMNAS.municipio}"`,
+    );
   }
 
   return filas;

@@ -17,3 +17,12 @@ describe("normalizarNombre", () => {
     expect(normalizarNombre("Vall d'Uixó, la/Vall de Uxó, la")).toBe("la Vall d'Uixó/la Vall de Uxó");
   });
 });
+
+describe("normalizarNombre: artículos catalanes y baleares", () => {
+  it("da la vuelta a les, els, sa y ses", () => {
+    expect(normalizarNombre("Borges Blanques, les")).toBe("les Borges Blanques");
+    expect(normalizarNombre("Pallaresos, els")).toBe("els Pallaresos");
+    expect(normalizarNombre("Pobla, sa")).toBe("sa Pobla");
+    expect(normalizarNombre("Salines, ses")).toBe("ses Salines");
+  });
+});

@@ -26,8 +26,13 @@ export function leerAltitudes(csv: string): Map<string, number> {
   for (const fila of filas) {
     if (fila[COLUMNAS.tipo]?.trim().toUpperCase() !== TIPO_CAPITAL) continue;
 
-    const codigo = fila[COLUMNAS.codigo]?.trim().slice(0, 5);
-    if (codigo === undefined || !/^\d{5}$/.test(codigo)) continue;
+    // El código de entidad son diez dígitos: municipio (5) + entidad (5).
+    // Abierto como número pierde el cero inicial de nueve provincias, y
+    // recortar los cinco primeros de un código corto fabrica un municipio que
+    // no existe. Rellenar antes de recortar lo devuelve a su sitio.
+    const digitos = fila[COLUMNAS.codigo]?.trim().replace(/\D/g, "");
+    if (digitos === undefined || digitos.length === 0 || digitos.length > 10) continue;
+    const codigo = digitos.padStart(10, "0").slice(0, 5);
 
     const bruta = fila[COLUMNAS.altitud]?.trim();
     if (bruta === undefined || bruta === "") continue;

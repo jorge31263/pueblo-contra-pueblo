@@ -44,3 +44,25 @@ describe("leerNombres", () => {
     expect(leerNombres(fixture).has("09999")).toBe(false);
   });
 });
+
+describe("leerPadron: datos que no son datos", () => {
+  const cabecera = "Municipios;Sexo;Periodo;Total\n";
+
+  it("no convierte la celda vacía en cero habitantes", () => {
+    expect(leerPadron(cabecera + "50249 Tabuenca;Total;2025;\n").has("50249")).toBe(false);
+  });
+
+  it("rechaza el municipio de cero habitantes", () => {
+    expect(leerPadron(cabecera + "50249 Tabuenca;Total;2025;0\n").has("50249")).toBe(false);
+  });
+
+  it("avisa si el CSV no trae la columna del total", () => {
+    expect(() => leerPadron("Municipios;Sexo;Periodo;Ambos sexos\n50249 Tabuenca;Total;2025;305\n"))
+      .toThrow(/Total/);
+  });
+
+  it("avisa si casi ninguna fila trae un código de municipio", () => {
+    const filas = Array.from({ length: 50 }, (_, i) => `Fila rara ${i};Total;2025;100`).join("\n");
+    expect(() => leerPadron(cabecera + filas + "\n")).toThrow(/código/i);
+  });
+});

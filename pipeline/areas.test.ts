@@ -93,11 +93,22 @@ describe("codigoIneDe", () => {
     expect(codigoIneDe({ CODIGOINE: "50249" })).toBe("50249");
   });
 
-  it("toma los cinco últimos dígitos de un código más largo", () => {
-    expect(codigoIneDe({ NATCODE: "3450249" })).toBe("50249");
+  it("toma los cinco últimos dígitos de un NATCODE de nueve dígitos", () => {
+    expect(codigoIneDe({ NATCODE: "340250249" })).toBe("50249");
   });
 
   it("devuelve undefined cuando el registro no trae código", () => {
     expect(codigoIneDe({ NOMBRE: "Tabuenca" })).toBeUndefined();
+  });
+});
+
+describe("reproyectarAWgs84: Canarias", () => {
+  it("conoce REGCAN95 / UTM 28N, la proyección de los recintos canarios", () => {
+    const g: Polygon = { type: "Polygon", coordinates: [[[400000, 3100000], [400100, 3100000], [400100, 3100100], [400000, 3100100], [400000, 3100000]]] };
+    const [lon, lat] = (reproyectarAWgs84(g, "EPSG:4084") as Polygon).coordinates[0]![0]!;
+    expect(lon).toBeGreaterThan(-19);
+    expect(lon).toBeLessThan(-13);
+    expect(lat).toBeGreaterThan(27);
+    expect(lat).toBeLessThan(29.5);
   });
 });
