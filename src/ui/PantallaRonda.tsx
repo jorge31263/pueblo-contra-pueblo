@@ -111,7 +111,7 @@ export function PantallaRonda({ ronda, racha, onElegir }: Props) {
 
       {!revelado && (
         <p className="text-center text-sm text-slate-400">
-          Elige con el ratón o con las flechas ← →
+          Toca el que creas que gana. Con teclado, las flechas ← →
         </p>
       )}
     </section>

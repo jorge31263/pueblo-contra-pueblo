@@ -119,6 +119,17 @@ describe("PantallaRonda", () => {
   });
 });
 
+describe("PantallaRonda: la pista de cómo se juega", () => {
+  it("no da por hecho que hay ratón ni teclado", () => {
+    pintar();
+    // En un móvil no hay ni ratón ni flechas, y el reto diario se juega sobre
+    // todo ahí.
+    const pista = screen.getByText(/toca|pulsa/i);
+    expect(pista).toBeInTheDocument();
+    expect(pista.textContent).not.toMatch(/ratón/i);
+  });
+});
+
 describe("PantallaRonda: accesibilidad", () => {
   it("anuncia la ronda nueva en una región viva, con métrica y pueblos", () => {
     pintar();

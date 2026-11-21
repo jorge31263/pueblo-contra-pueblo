@@ -76,9 +76,28 @@ detrás: "A Coruña", no "Coruña, A".
 Bares como métrica (no hay dato nacional fiable), ranking global (exigiría
 backend, ADR 0003), mapas y fotos (ADR 0006), idiomas distintos del castellano.
 
+## Dónde se juega
+
+El juego es **una web**, y el móvil es su sitio principal: el reto diario se
+juega de pie, en un minuto, probablemente en un teléfono. Todo lo que se
+diseñe tiene que funcionar con el pulgar y sin teclado; el teclado es un extra
+para quien juegue sentado.
+
+Más adelante puede querer ser también **una app**, para que volver cada día
+cueste un toque en lugar de buscar una URL. El camino natural es convertirla
+en instalable (manifiesto, icono y caché propia) sin dejar de ser la misma web
+estática: eso da icono en la pantalla de inicio y funcionamiento sin conexión
+sin abrir la puerta a un backend ni a las tiendas de aplicaciones. Una app
+nativa sería otra decisión y tendría su propio ADR.
+
+Nada de esto está hecho todavía; queda escrito para que las decisiones de hoy
+no lo impidan.
+
 ## Restricciones
 
 - Web estática: sin servidor, sin cuentas, sin backend (ADR 0003).
+- El móvil es el dispositivo principal: nada puede depender de ratón ni de
+  teclado.
 - Los datos viajan en un snapshot generado y versionado en el repo.
 - Jugable entero con teclado; acierto y fallo nunca indicados solo por color.
 - Todo el texto de cara al jugador, en castellano.
