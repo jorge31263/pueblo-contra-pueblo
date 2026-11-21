@@ -34,6 +34,17 @@ qué, y son 157 MB y un pipeline de geometría que nos ahorramos.
 `data/raw/versiones.json` es lo que `main.ts` copia al campo `fuentes` del
 snapshot. Edítalo al regenerar; si alguna queda vacía, la generación aborta.
 
+## Al regenerar el snapshot: sube la versión de la caché
+
+El juego guarda `snapshot.json` en la caché del navegador y lo sirve de ahí
+antes que de la red, así que **quien ya haya jugado seguiría viendo el catálogo
+viejo indefinidamente**. Para que vean el nuevo, sube `VERSION` en
+`public/sw.js`:
+
+    const VERSION = "pcp-v1";   →   "pcp-v2"
+
+Al activarse, el service worker borra cualquier caché que no sea la suya.
+
 ## Atribución
 
 El Nomenclátor es CC-BY 4.0 del IGN y obliga a citar la fuente donde se
