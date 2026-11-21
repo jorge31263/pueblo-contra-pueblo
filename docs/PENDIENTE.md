@@ -42,6 +42,14 @@ olvido.
 - **`provinciaDe` ya no existe**, pero si vuelve: abortaba el pipeline entero
   ante un prefijo de provincia desconocido en vez de generar un descarte.
 
+## Infraestructura
+
+- **`actions/checkout@v4` y `setup-node@v4` apuntan a Node 20**, que GitHub ha
+  puesto en retirada: el runner las fuerza a Node 24 y lo avisa en cada
+  ejecución. No rompe nada hoy; dejará de funcionar solo.
+- **`deploy-pages` falla a veces con "Deployment failed, try again later"**, sin
+  que haya cambiado nada. Es transitorio: reintentar el job basta.
+
 ## Decidido a conciencia que no
 
 - **Bares como métrica.** No hay dato nacional fiable (ver la discusión en el
