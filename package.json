@@ -7,18 +7,12 @@
     "datos": "tsx pipeline/main.ts"
   },
   "devDependencies": {
-    "@types/shapefile": "^0.6.4",
     "tsx": "4.19.2",
     "typescript": "5.7.2",
     "vitest": "2.1.8"
   },
   "dependencies": {
-    "@turf/area": "^7.1.0",
-    "@types/geojson": "^7946.0.14",
     "@types/node": "^22.10.2",
-    "@types/proj4": "^2.5.5",
-    "csv-parse": "^5.6.0",
-    "proj4": "^2.12.1",
-    "shapefile": "^0.6.6"
+    "csv-parse": "^5.6.0"
   }
 }

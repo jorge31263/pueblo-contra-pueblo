@@ -1,38 +1,24 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { leerPadron, leerNombres } from "./padron.js";
-import { leerAltitudes } from "./altitudes.js";
-import { leerAreas } from "./areas.js";
+import { leerNomenclator } from "./nomenclator.js";
 import { construirCatalogo, type MotivoDescarte } from "./catalogo.js";
 
 /**
- * Pegamento de entrada y salida: lee los ficheros de data/raw/, construye el
- * catálogo y escribe el snapshot. La lógica está en los módulos, que sí tienen
- * pruebas; aquí viven las rutas, el informe y los cortafuegos que impiden
- * publicar un catálogo roto.
+ * Pegamento de entrada y salida: lee los dos ficheros de data/raw/, construye
+ * el catálogo y escribe el snapshot. La lógica está en los módulos, que sí
+ * tienen pruebas; aquí viven las rutas, el informe y los cortafuegos que
+ * impiden publicar un catálogo roto.
  */
 const RUTAS = {
   padron: "data/raw/padron.csv",
-  ngmep: "data/raw/ngmep.csv",
+  nomenclator: "data/raw/ngmep/MUNICIPIOS.csv",
   versiones: "data/raw/versiones.json",
   salida: "src/data/snapshot.json",
 };
 
-/**
- * El CNIG no publica los recintos municipales de toda España en un fichero:
- * la península y Baleares van en ETRS89 y Canarias en REGCAN95, que son
- * proyecciones distintas. Con una sola entrada, Canarias entera —las
- * provincias 35 y 38— desaparecería del catálogo sin hacer ruido.
- *
- * Si tu descarga es un único fichero nacional, deja una sola entrada.
- */
-const LIMITES: { ruta: string; crs: string }[] = [
-  { ruta: "data/raw/municipios.shp", crs: process.env["CRS_LIMITES"] ?? "EPSG:25830" },
-  { ruta: "data/raw/municipios-canarias.shp", crs: process.env["CRS_LIMITES_CANARIAS"] ?? "EPSG:4083" },
-];
-
 const MINIMO_PUEBLOS = 1000;
-/** Un cruce sano con estas fuentes pasa del 98%. Por debajo, algo no cuadra. */
+/** Un cruce sano entre padrón y Nomenclátor pasa del 98%. Por debajo, algo no cuadra. */
 const CRUCE_MINIMO = 0.98;
 
 function hoy(): string {
@@ -42,14 +28,14 @@ function hoy(): string {
 
 function leerVersiones(): Record<string, string> {
   const versiones: Record<string, string> = JSON.parse(readFileSync(RUTAS.versiones, "utf8"));
-  const vacias = ["padron", "ngmep", "cnig"].filter((k) => !versiones[k]);
+  const vacias = ["padron", "ngmep"].filter((k) => !versiones[k]);
   if (vacias.length > 0) {
     throw new Error(`Falta la versión de ${vacias.join(", ")} en ${RUTAS.versiones}`);
   }
   return versiones;
 }
 
-async function main(): Promise<void> {
+function main(): void {
   const fuentes = leerVersiones();
 
   const csvPadron = readFileSync(RUTAS.padron, "utf8");
@@ -58,37 +44,28 @@ async function main(): Promise<void> {
   if (padron.size === 0) {
     throw new Error(`${RUTAS.padron} no ha dado ni un municipio: revisa el formato antes de seguir`);
   }
-  const altitudes = leerAltitudes(readFileSync(RUTAS.ngmep, "utf8"));
 
-  const areas = new Map<string, number>();
-  for (const { ruta, crs } of LIMITES) {
-    if (!existsSync(ruta)) {
-      throw new Error(`Falta ${ruta}: sin ese fichero quedarían provincias enteras fuera del catálogo`);
-    }
-    for (const [codigo, km2] of await leerAreas(ruta, crs)) areas.set(codigo, km2);
-    console.log(`Extensiones de ${ruta} (${crs}): ${areas.size} municipios acumulados`);
-  }
+  // El Nomenclátor del IGN viene en ISO-8859-15, no en UTF-8.
+  const nomenclator = leerNomenclator(readFileSync(RUTAS.nomenclator, "latin1"));
 
   console.log(`Padrón: ${padron.size} municipios`);
-  console.log(`Altitudes: ${altitudes.size} municipios`);
+  console.log(`Nomenclátor: ${nomenclator.size} municipios con altitud y superficie`);
 
   // Un cruce bajo significa que los códigos de una fuente no son los que
-  // creemos, no que falten datos. Y un excedente grande —códigos que ninguna
-  // fuente comparte con el padrón— delata el mismo desajuste por el otro lado.
-  for (const [fuente, mapa] of [["altitudes", altitudes], ["extensiones", areas]] as const) {
-    const cruzan = [...padron.keys()].filter((id) => mapa.has(id)).length;
-    const sobran = [...mapa.keys()].filter((id) => !padron.has(id)).length;
-    const cruce = cruzan / padron.size;
-    console.log(`  cruce con ${fuente}: ${(cruce * 100).toFixed(1)}% (${sobran} códigos ajenos al padrón)`);
-    if (cruce < CRUCE_MINIMO) {
-      throw new Error(
-        `Solo el ${(cruce * 100).toFixed(1)}% de los municipios del padrón aparece en ${fuente}: ` +
-          `revisa los nombres de columna o el campo del código INE antes de seguir`,
-      );
-    }
+  // creemos, no que falten datos. Y un excedente grande —códigos que el
+  // Nomenclátor tiene y el padrón no— delata el mismo desajuste por el otro lado.
+  const cruzan = [...padron.keys()].filter((id) => nomenclator.has(id)).length;
+  const sobran = [...nomenclator.keys()].filter((id) => !padron.has(id)).length;
+  const cruce = cruzan / padron.size;
+  console.log(`  cruce: ${(cruce * 100).toFixed(1)}% (${sobran} códigos ajenos al padrón)`);
+  if (cruce < CRUCE_MINIMO) {
+    throw new Error(
+      `Solo el ${(cruce * 100).toFixed(1)}% de los municipios del padrón aparece en el Nomenclátor: ` +
+        `revisa los nombres de columna o el formato del código INE antes de seguir`,
+    );
   }
 
-  const { pueblos, descartes } = construirCatalogo({ padron, nombres, altitudes, areas });
+  const { pueblos, descartes } = construirCatalogo({ padron, nombres, nomenclator });
 
   console.log(`\nCatálogo: ${pueblos.length} pueblos`);
   for (const motivo of Object.keys(descartes) as MotivoDescarte[]) {
@@ -107,7 +84,9 @@ async function main(): Promise<void> {
   console.log(`\nEscrito ${RUTAS.salida}`);
 }
 
-main().catch((error: unknown) => {
+try {
+  main();
+} catch (error: unknown) {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);
-});
+}

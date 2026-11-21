@@ -20,9 +20,13 @@ se muestran solo **nombre y provincia** (ADR 0006).
 
 | Métrica | Unidad mostrada | Fuente |
 |---|---|---|
-| Habitantes | número entero | Padrón continuo del INE |
-| Altitud | metros | Nomenclátor Geográfico del IGN (NGMEP) |
-| Extensión | km² con un decimal | área calculada de los límites del CNIG (ADR 0005) |
+| Habitantes | número entero | Padrón continuo del INE (tabla 29005) |
+| Altitud | metros | Nomenclátor Geográfico del IGN, `MUNICIPIOS.csv` |
+| Extensión | km² | la misma fuente, convertida de hectáreas (ADR 0008) |
+
+La extensión se guarda con dos decimales: con uno, Emperador (0,03 km²) y
+Llocnou de la Corona (0,01 km²), los dos municipios más pequeños de España,
+valdrían cero.
 
 ### Separación mínima
 
@@ -88,20 +92,21 @@ frontera entre los dos subsistemas y lo único que comparten.
 ```json
 {
   "generadoEl": "2026-11-21",
-  "fuentes": { "padron": "2025", "ngmep": "2025-06", "cnig": "2025-04" },
+  "fuentes": { "padron": "2025", "ngmep": "2026-03" },
   "pueblos": [
     {
-      "id": "50251",
+      "id": "50249",
       "nombre": "Tabuenca",
       "provincia": "Zaragoza",
-      "habitantes": 312,
-      "altitud": 629,
-      "extension": 44.6
+      "habitantes": 305,
+      "altitud": 770,
+      "extension": 85.72
     }
   ]
 }
 ```
 
 - `id`: código INE de municipio, cinco dígitos, ceros iniciales incluidos.
-- `altitud`: metros sobre el nivel del mar del núcleo capital del municipio.
-- `extension`: km² con un decimal.
+- `altitud`: metros sobre el nivel del mar que el IGN da al municipio.
+- `extension`: km² con dos decimales.
+- `provincia`: en la forma oficial del IGN, bilingüe donde la tiene.

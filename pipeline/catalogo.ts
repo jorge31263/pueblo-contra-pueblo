@@ -1,5 +1,5 @@
 import { normalizarNombre } from "./nombres.js";
-import { provinciaDe } from "./provincias.js";
+import type { FilaNomenclator } from "./nomenclator.js";
 
 export type Pueblo = {
   id: string;
@@ -13,15 +13,13 @@ export type Pueblo = {
 export type EntradaCatalogo = {
   padron: Map<string, number>;
   nombres: Map<string, string>;
-  altitudes: Map<string, number>;
-  areas: Map<string, number>;
+  nomenclator: Map<string, FilaNomenclator>;
 };
 
 export type MotivoDescarte =
   | "demasiado-grande"
   | "sin-nombre"
-  | "sin-altitud"
-  | "sin-extension"
+  | "sin-nomenclator"
   | "valor-imposible";
 
 export type ResultadoCatalogo = {
@@ -38,11 +36,11 @@ export const LIMITE_HABITANTES = 20000;
  * (ADR 0005). Esto convierte ese fallo mudo en una línea del informe.
  *
  * El municipio más extenso ronda los 1.750 km² (Cáceres) y el más pequeño no
- * llega a 0,1 km² (Emperador). La altitud admite valores algo negativos por
+ * llega a 0,02 km². La altitud admite valores algo negativos por
  * los municipios bajo el nivel del mar del litoral.
  */
 export const RANGOS = {
-  extension: { minimo: 0.1, maximo: 1800 },
+  extension: { minimo: 0.01, maximo: 1800 },
   altitud: { minimo: -10, maximo: 2100 },
 } as const;
 
@@ -57,8 +55,7 @@ export function construirCatalogo(entrada: EntradaCatalogo): ResultadoCatalogo {
   const descartes: Record<MotivoDescarte, string[]> = {
     "demasiado-grande": [],
     "sin-nombre": [],
-    "sin-altitud": [],
-    "sin-extension": [],
+    "sin-nomenclator": [],
     "valor-imposible": [],
   };
 
@@ -76,17 +73,12 @@ export function construirCatalogo(entrada: EntradaCatalogo): ResultadoCatalogo {
       continue;
     }
 
-    const altitud = entrada.altitudes.get(id);
-    if (altitud === undefined) {
-      descartes["sin-altitud"].push(id);
+    const fila = entrada.nomenclator.get(id);
+    if (fila === undefined) {
+      descartes["sin-nomenclator"].push(id);
       continue;
     }
-
-    const extension = entrada.areas.get(id);
-    if (extension === undefined) {
-      descartes["sin-extension"].push(id);
-      continue;
-    }
+    const { provincia, altitud, extension } = fila;
 
     if (
       extension < RANGOS.extension.minimo ||
@@ -101,7 +93,7 @@ export function construirCatalogo(entrada: EntradaCatalogo): ResultadoCatalogo {
     pueblos.push({
       id,
       nombre: normalizarNombre(nombre),
-      provincia: provinciaDe(id),
+      provincia,
       habitantes,
       altitud,
       extension,

@@ -1,50 +1,42 @@
 # Ficheros de entrada
 
-Los tres ficheros que alimentan el snapshot se descargan a mano y **no se
-versionan**: son grandes y cambian una vez al año como mucho. Lo que sí se
-versiona es el snapshot resultante (`src/data/snapshot.json`).
+Dos descargas alimentan el snapshot. No se versionan: son grandes y cambian
+una vez al año como mucho. Lo que sí se versiona es el snapshot resultante
+(`src/data/snapshot.json`) y `versiones.json`, que dice de cuándo son.
 
-Guarda cada descarga con el nombre exacto que espera `npm run datos`:
+## 1. Padrón → `data/raw/padron.csv`
 
-| Fichero esperado | Qué es | De dónde |
-|---|---|---|
-| `data/raw/padron.csv` | Cifras oficiales de población por municipio | INE, "Cifras oficiales de población de los municipios españoles: Revisión del Padrón Municipal". Descarga en CSV delimitado por `;` |
-| `data/raw/ngmep.csv` | Entidades de población con su altitud | IGN, Nomenclátor Geográfico de Municipios y Entidades de Población (NGMEP), en el Centro de Descargas del CNIG |
-| `data/raw/municipios.shp` | Recintos municipales de península y Baleares, con su `.dbf`, `.shx` y `.prj` al lado | CNIG, Base de Datos de Líneas Límite |
-| `data/raw/municipios-canarias.shp` | Recintos municipales de Canarias, con sus ficheros al lado | CNIG, misma serie, descarga aparte |
-
-## Las descargas del CNIG piden un CAPTCHA
-
-El Centro de Descargas protege cada descarga con reCAPTCHA, así que estos dos
-ficheros los baja una persona. El padrón del INE sí tiene descarga directa:
+Descarga directa, sin CAPTCHA:
 
     curl -o data/raw/padron.csv https://www.ine.es/jaxiT3/files/t/csv_bdsc/29005.csv
 
-## Proyección de los límites
+Son 26 MB y 732.000 filas: una por municipio, sexo y año desde 1996. El lector
+se queda con el sexo "Total" del año más reciente. Es UTF-8 con BOM, aunque la
+cabecera HTTP diga ISO-8859-15.
 
-España no cabe en una sola proyección: la península y Baleares van en **ETRS89
-/ UTM 30N (EPSG:25830)** y Canarias en **REGCAN95 / UTM 28N (EPSG:4083)**. Por
-eso `pipeline/main.ts` lee dos ficheros, cada uno con el suyo. Si olvidas el
-segundo, las provincias 35 y 38 desaparecen del catálogo.
+## 2. Nomenclátor del IGN → `data/raw/ngmep/MUNICIPIOS.csv`
 
-Mira el `.prj` de cada descarga: si no coincide, pásale el bueno por
-`CRS_LIMITES` o `CRS_LIMITES_CANARIAS`, y si no está en `DEFINICIONES` (en
-`pipeline/areas.ts`), añádelo allí. Si tu descarga resulta ser un único fichero
-nacional, deja una sola entrada en la lista `LIMITES` de `main.ts`.
+Del [Centro de Descargas del CNIG](https://centrodedescargas.cnig.es/CentroDescargas/catalogo?Serie=NGMEN),
+"Nomenclátor Geográfico de Municipios y Entidades de Población", 9,6 MB. La
+descarga pasa por un reCAPTCHA, así que la hace una persona. Del ZIP
+`BD_Municipios-Entidades.zip` solo hace falta `MUNICIPIOS.csv`:
 
-Una proyección equivocada no da error: da áreas verosímiles y falsas. Por eso
-el último paso de la generación es comparar diez pueblos conocidos con la
-Wikipedia.
+    unzip -o ~/Downloads/BD_Municipios-Entidades.zip MUNICIPIOS.csv -d data/raw/ngmep/
 
-## Versión usada en el snapshot del repo
+Trae altitud y superficie de los 8.132 municipios. Viene en ISO-8859-15 y con
+la coma como separador decimal.
 
-Las versiones viven en `data/raw/versiones.json`, que sí está versionado y es
-lo que `main.ts` copia al campo `fuentes` del snapshot. Edítalo al regenerar;
-si alguna queda vacía, la generación aborta.
+**Los límites municipales del CNIG ya no hacen falta**: el ADR 0008 explica por
+qué, y son 157 MB y un pipeline de geometría que nos ahorramos.
+
+## Versiones
+
+`data/raw/versiones.json` es lo que `main.ts` copia al campo `fuentes` del
+snapshot. Edítalo al regenerar; si alguna queda vacía, la generación aborta.
 
 ## Atribución
 
-El NGMEP y los límites municipales son CC-BY 4.0 del IGN y obligan a citar la
-fuente allá donde se publiquen los datos derivados:
+El Nomenclátor es CC-BY 4.0 del IGN y obliga a citar la fuente donde se
+publiquen los datos derivados:
 
 > Obra derivada de NGMEP CC-BY 4.0 ign.es
