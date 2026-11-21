@@ -1,6 +1,11 @@
-"Municipios";"Periodo";"Total"
-"Total Nacional";"2025";"49.077.984"
-"01001 Alegría-Dulantzi";"2025";"3.012"
-"11004 Algeciras";"2025";"124.212"
-"28079 Madrid";"2025";"3.223.334"
-"50251 Tabuenca";"2025";"312"
+﻿Municipios;Sexo;Periodo;Total
+01001 Alegría-Dulantzi;Total;2025;3.012
+01001 Alegría-Dulantzi;Hombres;2025;1.520
+01001 Alegría-Dulantzi;Mujeres;2025;1.492
+01001 Alegría-Dulantzi;Total;2024;2.990
+11004 Algeciras;Total;2025;124.212
+28079 Madrid;Total;2025;3.223.334
+28079 Madrid;Mujeres;2025;1.800.000
+50249 Tabuenca;Total;2025;305
+50249 Tabuenca;Total;2024;312
+09999 Pueblo Fusionado;Total;2010;150

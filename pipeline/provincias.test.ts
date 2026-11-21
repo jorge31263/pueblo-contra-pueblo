@@ -4,7 +4,7 @@ import { provinciaDe } from "./provincias.js";
 describe("provinciaDe", () => {
   it("resuelve la provincia por los dos primeros dígitos", () => {
     expect(provinciaDe("01001")).toBe("Álava");
-    expect(provinciaDe("50251")).toBe("Zaragoza");
+    expect(provinciaDe("50249")).toBe("Zaragoza");
     expect(provinciaDe("38023")).toBe("Santa Cruz de Tenerife");
   });
 

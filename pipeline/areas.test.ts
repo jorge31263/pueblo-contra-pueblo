@@ -90,11 +90,11 @@ describe("reproyectarAWgs84", () => {
 describe("codigoIneDe", () => {
   it("rellena con ceros a la izquierda hasta cinco dígitos", () => {
     expect(codigoIneDe({ NATCODE: "1001" })).toBe("01001");
-    expect(codigoIneDe({ CODIGOINE: "50251" })).toBe("50251");
+    expect(codigoIneDe({ CODIGOINE: "50249" })).toBe("50249");
   });
 
   it("toma los cinco últimos dígitos de un código más largo", () => {
-    expect(codigoIneDe({ NATCODE: "3450251" })).toBe("50251");
+    expect(codigoIneDe({ NATCODE: "3450249" })).toBe("50249");
   });
 
   it("devuelve undefined cuando el registro no trae código", () => {

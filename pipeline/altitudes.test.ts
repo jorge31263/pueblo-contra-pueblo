@@ -6,7 +6,7 @@ const fixture = readFileSync(new URL("./fixtures/ngmep-min.csv", import.meta.url
 
 describe("leerAltitudes", () => {
   it("toma la altitud del núcleo capital del municipio", () => {
-    expect(leerAltitudes(fixture).get("50251")).toBe(629);
+    expect(leerAltitudes(fixture).get("50249")).toBe(629);
   });
 
   it("acepta la altitud cero", () => {
@@ -18,6 +18,6 @@ describe("leerAltitudes", () => {
   });
 
   it("ignora los núcleos que no son la capital", () => {
-    expect(leerAltitudes(fixture).get("33024")).toBe(232);
+    expect(leerAltitudes(fixture).get("33026")).toBe(232);
   });
 });
