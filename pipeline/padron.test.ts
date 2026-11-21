@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { leerPadron } from "./padron.js";
+import { leerPadron, leerNombres } from "./padron.js";
 
 const fixture = readFileSync(new URL("./fixtures/padron-min.csv", import.meta.url), "utf8");
 
@@ -17,5 +17,15 @@ describe("leerPadron", () => {
   it("ignora las filas de totales nacionales y provinciales", () => {
     expect(leerPadron(fixture).has("TOTAL")).toBe(false);
     expect(leerPadron(fixture).size).toBe(4);
+  });
+});
+
+describe("leerNombres", () => {
+  it("saca el nombre oficial de la misma columna que el código", () => {
+    expect(leerNombres(fixture).get("50251")).toBe("Tabuenca");
+  });
+
+  it("no incluye las filas de totales", () => {
+    expect(leerNombres(fixture).size).toBe(4);
   });
 });
