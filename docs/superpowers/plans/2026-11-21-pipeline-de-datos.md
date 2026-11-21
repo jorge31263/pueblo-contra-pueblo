@@ -29,7 +29,7 @@
 
 ---
 
-### Tarea 1: Andamiaje y normalización de nombres
+### Task 1: Andamiaje y normalización de nombres
 
 **Files:**
 - Create: `package.json`, `tsconfig.json`, `vitest.config.ts`, `.gitignore`
@@ -86,7 +86,7 @@ git commit -m "feat(datos): andamiaje y normalizacion de nombres de municipio"
 
 ---
 
-### Tarea 2: Provincias y lectura del padrón
+### Task 2: Provincias y lectura del padrón
 
 **Files:**
 - Create: `pipeline/provincias.ts`, `pipeline/padron.ts`
@@ -152,7 +152,7 @@ git commit -m "feat(datos): tabla de provincias y lectura del padron"
 
 ---
 
-### Tarea 3: Altitudes del NGMEP
+### Task 3: Altitudes del NGMEP
 
 **Files:**
 - Create: `pipeline/altitudes.ts`
@@ -207,7 +207,7 @@ git commit -m "feat(datos): altitud del nucleo capital desde el NGMEP"
 
 ---
 
-### Tarea 4: Áreas desde los límites del CNIG
+### Task 4: Áreas desde los límites del CNIG
 
 **Files:**
 - Create: `pipeline/areas.ts`
@@ -258,7 +258,7 @@ git commit -m "feat(datos): extension municipal calculada desde los limites del 
 
 ---
 
-### Tarea 5: Construcción del catálogo
+### Task 5: Construcción del catálogo
 
 **Files:**
 - Create: `pipeline/catalogo.ts`
@@ -312,7 +312,7 @@ git commit -m "feat(datos): construccion del catalogo con informe de descartes"
 
 ---
 
-### Tarea 6: Generación del snapshot
+### Task 6: Generación del snapshot
 
 **Files:**
 - Create: `pipeline/main.ts`, `data/raw/README.md`
