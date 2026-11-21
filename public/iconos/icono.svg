@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#0f172a"/>
+  <!-- Dos pueblos enfrentados: gana el de la derecha. -->
+  <rect x="112" y="248" width="124" height="152" rx="26" fill="#f8fafc"/>
+  <rect x="276" y="112" width="124" height="288" rx="26" fill="#10b981"/>
+</svg>
