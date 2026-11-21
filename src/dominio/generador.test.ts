@@ -51,7 +51,7 @@ describe("generarRonda", () => {
 
   it("avisa en vez de girar para siempre cuando no hay ningún par posible", () => {
     const iguales = [pueblo("A", 100), pueblo("B", 100)];
-    expect(() => generarRonda(iguales, crearAleatorio("x"), 0)).toThrow(/separad/i);
+    expect(() => generarRonda(iguales, crearAleatorio("x"), 0)).toThrow(/valores distintos/i);
   });
 
   it("avisa si el catálogo no tiene ni dos pueblos", () => {
@@ -78,5 +78,33 @@ describe("generarRonda", () => {
     const r = crearAleatorio("variada");
     const vistas = new Set(Array.from({ length: 60 }, () => generarRonda(catalogoPrueba, r, 0).metrica));
     expect(vistas.size).toBe(3);
+  });
+});
+
+describe("generarRonda: métricas sin pares posibles", () => {
+  const conAltitudesIguales: Pueblo[] = [
+    { id: "A", nombre: "A", provincia: "P", habitantes: 100, altitud: 500, extension: 10 },
+    { id: "B", nombre: "B", provincia: "P", habitantes: 1000, altitud: 500, extension: 100 },
+    { id: "C", nombre: "C", provincia: "P", habitantes: 5000, altitud: 500, extension: 500 },
+  ];
+
+  it("prueba las demás métricas en vez de rendirse con la que sorteó", () => {
+    for (let i = 0; i < 60; i += 1) {
+      const ronda = generarRonda(conAltitudesIguales, crearAleatorio(`m${i}`), 0);
+      expect(ronda.metrica).not.toBe("altitud");
+    }
+  });
+
+  it("no se rinde cuando excluir deja sin pares separados pero quedan dos pueblos", () => {
+    const cuatro: Pueblo[] = [
+      { id: "A", nombre: "A", provincia: "P", habitantes: 10, altitud: 10, extension: 1 },
+      { id: "B", nombre: "B", provincia: "P", habitantes: 5000, altitud: 900, extension: 500 },
+      { id: "C", nombre: "C", provincia: "P", habitantes: 100, altitud: 100, extension: 10 },
+      { id: "D", nombre: "D", provincia: "P", habitantes: 100, altitud: 100, extension: 10 },
+    ];
+    for (let i = 0; i < 30; i += 1) {
+      const ronda = generarRonda(cuatro, crearAleatorio(`x${i}`), 0, new Set(["A", "B"]));
+      expect(ronda.par[0].id).not.toBe(ronda.par[1].id);
+    }
   });
 });

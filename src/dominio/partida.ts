@@ -6,9 +6,10 @@ import { generarRonda } from "./generador.js";
  * Una partida empieza en la primera ronda y acaba en el primer fallo. La racha
  * es la única cifra que el juego mide.
  *
- * La partida es inmutable: `responder` devuelve una nueva. Lleva dentro su
- * propio generador aleatorio, creado de la semilla, para que la secuencia
- * dependa solo de ella y de nada más.
+ * La partida es inmutable: `responder` devuelve una nueva, y llamarlo dos
+ * veces sobre la misma partida da exactamente la misma ronda. Para eso cada
+ * ronda nace de un generador propio sembrado con `semilla:racha`, en vez de
+ * compartir uno con estado que avanzaría al llamarlo otra vez.
  */
 export type Partida = {
   readonly semilla: string;
@@ -16,23 +17,27 @@ export type Partida = {
   readonly racha: number;
   readonly estado: "jugando" | "terminada";
   readonly ultimaRespuesta?: { readonly acierto: boolean };
-  /** Interno: el azar sembrado y el catálogo con los que sigue la partida. */
-  readonly motor: Motor;
+  /** Interno: el catálogo con el que sigue la partida. */
+  readonly catalogo: Catalogo;
 };
 
-type Motor = {
-  readonly catalogo: Catalogo;
-  readonly aleatorio: () => number;
-};
+/** La ronda de una racha concreta, siempre la misma para la misma semilla. */
+function rondaDe(
+  catalogo: Catalogo,
+  semilla: string,
+  racha: number,
+  excluidos?: ReadonlySet<string>,
+) {
+  return generarRonda(catalogo, crearAleatorio(`${semilla}:${racha}`), racha, excluidos);
+}
 
 export function nuevaPartida(catalogo: Catalogo, semilla: string): Partida {
-  const motor: Motor = { catalogo, aleatorio: crearAleatorio(semilla) };
   return {
     semilla,
-    ronda: generarRonda(catalogo, motor.aleatorio, 0),
+    ronda: rondaDe(catalogo, semilla, 0),
     racha: 0,
     estado: "jugando",
-    motor,
+    catalogo,
   };
 }
 
@@ -50,7 +55,7 @@ export function responder(partida: Partida, eleccion: 0 | 1): Partida {
   const anteriores = new Set(partida.ronda.par.map((p) => p.id));
   return {
     ...partida,
-    ronda: generarRonda(partida.motor.catalogo, partida.motor.aleatorio, racha, anteriores),
+    ronda: rondaDe(partida.catalogo, partida.semilla, racha, anteriores),
     racha,
     estado: "jugando",
     ultimaRespuesta: { acierto: true },

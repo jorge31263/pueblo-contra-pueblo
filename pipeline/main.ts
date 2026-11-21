@@ -14,7 +14,7 @@ const RUTAS = {
   padron: "data/raw/padron.csv",
   nomenclator: "data/raw/ngmep/MUNICIPIOS.csv",
   versiones: "data/raw/versiones.json",
-  salida: "src/data/snapshot.json",
+  salida: "public/snapshot.json",
 };
 
 const MINIMO_PUEBLOS = 1000;

@@ -91,3 +91,17 @@ describe("responder", () => {
     expect(p.estado).toBe("jugando");
   });
 });
+
+describe("responder es una función, no un avance con efectos", () => {
+  it("dos veces sobre la misma partida da exactamente la misma ronda", () => {
+    const base = nuevaPartida(catalogoPrueba, "doble");
+    expect(acertar(base).ronda).toEqual(acertar(base).ronda);
+  });
+
+  it("la ronda de cada racha la determina la semilla, se llegue como se llegue", () => {
+    const directa = acertar(acertar(acertar(nuevaPartida(catalogoPrueba, "determinista"))));
+    const repetida = acertar(acertar(acertar(nuevaPartida(catalogoPrueba, "determinista"))));
+    expect(directa.ronda).toEqual(repetida.ronda);
+    expect(directa.racha).toBe(3);
+  });
+});

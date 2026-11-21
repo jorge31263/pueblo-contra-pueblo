@@ -118,3 +118,49 @@ describe("PantallaRonda", () => {
     expect(onElegir).toHaveBeenCalledWith(1);
   });
 });
+
+describe("PantallaRonda: accesibilidad", () => {
+  it("anuncia la ronda nueva en una región viva, con métrica y pueblos", () => {
+    pintar();
+    const vivas = [...document.querySelectorAll("[aria-live]")].map((n) => n.textContent ?? "");
+    const anuncio = vivas.join(" | ");
+    expect(anuncio).toMatch(/altitud/i);
+    expect(anuncio).toMatch(/Tabuenca/);
+    expect(anuncio).toMatch(/Pedraza/);
+  });
+
+  it("el nombre accesible del botón incluye el valor una vez revelado", async () => {
+    const usuario = userEvent.setup();
+    pintar();
+    await usuario.click(screen.getByRole("button", { name: /Pedraza/ }));
+    expect(await screen.findByRole("button", { name: /1066 m/ })).toBeInTheDocument();
+  });
+
+  it("no pierde el foco al revelar", async () => {
+    const usuario = userEvent.setup();
+    pintar();
+    const boton = screen.getByRole("button", { name: /Pedraza/ });
+    boton.focus();
+    await usuario.click(boton);
+    expect(document.activeElement).toBe(boton);
+  });
+
+  it("las flechas no hacen scroll de la página", () => {
+    pintar();
+    const evento = new KeyboardEvent("keydown", { key: "ArrowRight", cancelable: true, bubbles: true });
+    window.dispatchEvent(evento);
+    expect(evento.defaultPrevented).toBe(true);
+  });
+
+  it("dos teclas en el mismo tick no convierten un acierto en un fallo", () => {
+    pintar();
+    // Las dos en el mismo act: es el caso en que React todavía no ha retirado
+    // el listener anterior cuando llega la segunda tecla.
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    });
+    expect(screen.getByText(/correcto/i)).toBeInTheDocument();
+    expect(screen.queryByText(/fallo/i)).not.toBeInTheDocument();
+  });
+});

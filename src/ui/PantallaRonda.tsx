@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Ronda } from "../dominio/tipos.js";
 import { MILISEGUNDOS_DE_REVELADO } from "../dominio/parametros.js";
 import { etiquetaMetrica } from "./etiquetas.js";
@@ -20,10 +20,14 @@ type Props = {
  */
 export function PantallaRonda({ ronda, racha, onElegir }: Props) {
   const [eleccion, setEleccion] = useState<0 | 1 | null>(null);
+  const eleccionRef = useRef<0 | 1 | null>(null);
   const acierto = eleccion !== null && eleccion === ronda.ganador;
 
   // Cada ronda llega limpia aunque el componente no se desmonte.
-  useEffect(() => setEleccion(null), [ronda]);
+  useEffect(() => {
+    eleccionRef.current = null;
+    setEleccion(null);
+  }, [ronda]);
 
   useEffect(() => {
     if (!acierto || eleccion === null) return;
@@ -32,21 +36,41 @@ export function PantallaRonda({ ronda, racha, onElegir }: Props) {
   }, [acierto, eleccion, onElegir]);
 
   useEffect(() => {
-    if (eleccion !== null) return;
     const alPulsar = (evento: KeyboardEvent) => {
-      if (evento.key === "ArrowLeft") setEleccion(0);
-      if (evento.key === "ArrowRight") setEleccion(1);
+      if (evento.key !== "ArrowLeft" && evento.key !== "ArrowRight") return;
+      // El guardia va aquí dentro y no en las dependencias del efecto: dos
+      // teclas en el mismo tick llegarían las dos al listener anterior, y la
+      // segunda convertiría un acierto en el final de la partida.
+      if (eleccionRef.current !== null) return;
+      // Sin esto, las flechas eligen y además hacen scroll de la página.
+      evento.preventDefault();
+      const elegida = evento.key === "ArrowLeft" ? 0 : 1;
+      eleccionRef.current = elegida;
+      setEleccion(elegida);
     };
     window.addEventListener("keydown", alPulsar);
     return () => window.removeEventListener("keydown", alPulsar);
-  }, [eleccion]);
+  }, []);
 
   const revelado = eleccion !== null;
+  const elegir = (indice: 0 | 1) => {
+    if (eleccionRef.current !== null) return;
+    eleccionRef.current = indice;
+    setEleccion(indice);
+  };
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
       <p className="text-center text-sm font-medium uppercase tracking-wide text-slate-500">
         Racha {racha}
+      </p>
+
+      {/*
+        Sin esto, un lector de pantalla oye "Correcto" y luego silencio: la
+        pregunta y los dos pueblos cambian sin anunciarse.
+      */}
+      <p aria-live="polite" className="sr-only">
+        {`Ronda ${racha + 1}. ${etiquetaMetrica(ronda.metrica)} ${ronda.par[0].nombre}, ${ronda.par[0].provincia}, o ${ronda.par[1].nombre}, ${ronda.par[1].provincia}.`}
       </p>
       <h2 className="text-center text-2xl font-bold text-slate-900 sm:text-3xl">
         {etiquetaMetrica(ronda.metrica)}
@@ -61,7 +85,7 @@ export function PantallaRonda({ ronda, racha, onElegir }: Props) {
             revelado={revelado}
             elegido={eleccion === indice}
             gana={ronda.ganador === indice}
-            onElegir={() => setEleccion(indice === 0 ? 0 : 1)}
+            onElegir={() => elegir(indice === 0 ? 0 : 1)}
           />
         ))}
       </div>

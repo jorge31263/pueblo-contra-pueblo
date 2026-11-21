@@ -3,6 +3,9 @@ name: Publicar
 on:
   push:
     branches: [main]
+  # Sin esto, las pruebas se ejecutan por primera vez en el mismo job que
+  # publica: el fallo aparecería después de haber fusionado.
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -31,8 +34,11 @@ jobs:
       - run: npx tsc --noEmit
       - run: npm run build
       - uses: actions/configure-pages@v5
+        if: github.event_name != 'pull_request'
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: dist
       - id: despliegue
+        if: github.event_name != 'pull_request'
         uses: actions/deploy-pages@v4

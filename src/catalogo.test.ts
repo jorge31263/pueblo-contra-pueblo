@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { cargarCatalogo } from "./catalogo.js";
+import { validarCatalogo } from "./catalogo.js";
+import snapshot from "../public/snapshot.json";
 
-const catalogo = cargarCatalogo();
+const catalogo = validarCatalogo(snapshot);
 
-describe("cargarCatalogo", () => {
-  it("trae todos los pueblos del snapshot", () => {
+describe("el snapshot real", () => {
+  it("trae todos los pueblos", () => {
     expect(catalogo.length).toBeGreaterThan(1000);
   });
 
@@ -26,11 +27,25 @@ describe("cargarCatalogo", () => {
       .toEqual([]);
   });
 
-  it("no hay ids repetidos", () => {
+  it("no hay ids repetidos, y todos son códigos INE de cinco dígitos", () => {
     expect(new Set(catalogo.map((p) => p.id)).size).toBe(catalogo.length);
+    expect(catalogo.every((p) => /^\d{5}$/.test(p.id))).toBe(true);
+  });
+});
+
+describe("validarCatalogo", () => {
+  it("rechaza un snapshot vacío o truncado", () => {
+    expect(() => validarCatalogo({ pueblos: [] })).toThrow(/0 pueblos/);
+    expect(() => validarCatalogo({})).toThrow(/0 pueblos/);
+    expect(() => validarCatalogo(null)).toThrow(/0 pueblos/);
   });
 
-  it("todos los ids son códigos INE de cinco dígitos", () => {
-    expect(catalogo.every((p) => /^\d{5}$/.test(p.id))).toBe(true);
+  it("rechaza un pueblo al que le falta una métrica", () => {
+    const pueblos = Array.from({ length: 1200 }, (_, i) => ({
+      id: String(i).padStart(5, "0"), nombre: "X", provincia: "Y",
+      habitantes: 100, altitud: 100, extension: 10,
+    }));
+    pueblos[7] = { ...pueblos[7]!, altitud: undefined as unknown as number };
+    expect(() => validarCatalogo({ pueblos })).toThrow(/no tienen la forma esperada/);
   });
 });

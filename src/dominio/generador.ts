@@ -13,9 +13,13 @@ import { INTENTOS_POR_NIVEL, RACHA_MAS_DIFICIL } from "./parametros.js";
  * valores distintos. Nunca gira sin final: con un catálogo degenerado avisa en
  * lugar de colgar la pestaña.
  *
+ * La métrica sorteada puede no tener ningún par separado aunque otra sí lo
+ * tenga, así que se prueban las tres antes de rendirse. Rendirse sería lanzar
+ * en mitad de una partida.
+ *
  * `excluidos` son los pueblos de la ronda anterior, que no deben repetirse. Es
- * una preferencia, no una condición: si el catálogo se queda sin pares
- * posibles al excluirlos, se ignora antes que quedarse sin ronda.
+ * una preferencia, no una condición: si al excluirlos no sale ninguna ronda,
+ * se juega con el catálogo entero antes que quedarse sin ella.
  */
 export function generarRonda(
   catalogo: Catalogo,
@@ -27,21 +31,25 @@ export function generarRonda(
     throw new Error("Hacen falta al menos dos pueblos para montar una ronda");
   }
 
-  const metrica = elegirUno(METRICAS, aleatorio);
+  const sorteada = elegirUno(METRICAS, aleatorio);
+  const porOrden = [sorteada, ...METRICAS.filter((m) => m !== sorteada)];
   const disponibles = catalogo.filter((p) => !excluidos.has(p.id));
-  const dondeBuscar = disponibles.length >= 2 ? disponibles : catalogo;
 
-  for (const exigencia of [Math.max(racha, 0), RACHA_MAS_DIFICIL]) {
-    const par = buscarPar(dondeBuscar, aleatorio, metrica, exigencia);
-    if (par !== undefined) return montar(par, metrica);
+  for (const dondeBuscar of [disponibles, catalogo]) {
+    if (dondeBuscar.length < 2) continue;
+    for (const metrica of porOrden) {
+      for (const exigencia of [Math.max(racha, 0), RACHA_MAS_DIFICIL]) {
+        const par = buscarPar(dondeBuscar, aleatorio, metrica, exigencia);
+        if (par !== undefined) return montar(par, metrica);
+      }
+      const cualquiera = primerParDistinto(dondeBuscar, metrica);
+      if (cualquiera !== undefined) return montar(cualquiera, metrica);
+    }
   }
 
-  const cualquiera = primerParDistinto(dondeBuscar, metrica);
-  if (cualquiera !== undefined) return montar(cualquiera, metrica);
-
   throw new Error(
-    `No hay en el catálogo dos pueblos separados en ${metrica}: ` +
-      `con ${dondeBuscar.length} pueblos no se puede formar una ronda`,
+    `No hay en el catálogo dos pueblos con valores distintos en ninguna métrica: ` +
+      `con ${catalogo.length} pueblos no se puede formar una ronda`,
   );
 }
 
