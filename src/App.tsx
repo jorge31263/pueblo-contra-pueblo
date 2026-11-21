@@ -1,3 +1,80 @@
-export function App() {
-  return <h1>Pueblo contra pueblo</h1>;
+import { useState } from "react";
+import type { Catalogo } from "./dominio/tipos.js";
+import { nuevaPartida, responder, type Partida } from "./dominio/partida.js";
+import { semillaDelDia } from "./dominio/semilla.js";
+import { modoDesdeUrl, semillaAleatoria } from "./modos.js";
+import {
+  leerMejorRacha,
+  guardarMejorRacha,
+  marcarRetoDiarioJugado,
+  retoDiarioJugado,
+  type Modo,
+} from "./almacenamiento.js";
+import { PantallaInicio } from "./ui/PantallaInicio.js";
+import { PantallaRonda } from "./ui/PantallaRonda.js";
+import { PantallaResumen } from "./ui/PantallaResumen.js";
+
+type EnJuego = { modo: Modo; partida: Partida };
+
+export function App({ catalogo }: { catalogo: Catalogo }) {
+  const elegido = modoDesdeUrl(window.location.hash);
+  const [juego, setJuego] = useState<EnJuego | null>(() =>
+    elegido.modo === "libre"
+      ? { modo: "libre", partida: nuevaPartida(catalogo, elegido.semilla ?? semillaAleatoria()) }
+      : null,
+  );
+  // Cambia cuando termina una partida, para releer lo que haya guardado.
+  const [version, setVersion] = useState(0);
+
+  const semillaDeHoy = semillaDelDia(new Date());
+
+  const empezar = (modo: Modo, semilla: string) =>
+    setJuego({ modo, partida: nuevaPartida(catalogo, semilla) });
+
+  const alElegir = (eleccion: 0 | 1) => {
+    if (juego === null) return;
+    const siguiente = responder(juego.partida, eleccion);
+    if (siguiente.estado === "terminada") {
+      if (juego.modo === "diario") marcarRetoDiarioJugado(siguiente.semilla, siguiente.racha);
+      else guardarMejorRacha("libre", siguiente.racha);
+      setVersion((v) => v + 1);
+    }
+    setJuego({ ...juego, partida: siguiente });
+  };
+
+  if (juego === null) {
+    return (
+      <PantallaInicio
+        key={version}
+        diarioJugado={retoDiarioJugado(semillaDeHoy)}
+        mejorDiario={leerMejorRacha("diario")}
+        mejorLibre={leerMejorRacha("libre")}
+        onJugarDiario={() => empezar("diario", semillaDeHoy)}
+        onJugarLibre={() => empezar("libre", semillaAleatoria())}
+      />
+    );
+  }
+
+  if (juego.partida.estado === "jugando") {
+    return (
+      <PantallaRonda
+        ronda={juego.partida.ronda}
+        racha={juego.partida.racha}
+        onElegir={alElegir}
+      />
+    );
+  }
+
+  return (
+    <PantallaResumen
+      racha={juego.partida.racha}
+      mejor={leerMejorRacha(juego.modo)}
+      modo={juego.modo}
+      semilla={juego.partida.semilla}
+      url={window.location.origin + window.location.pathname}
+      ronda={juego.partida.ronda}
+      onOtraVez={() => empezar("libre", semillaAleatoria())}
+      onInicio={() => setJuego(null)}
+    />
+  );
 }
