@@ -4,3 +4,4 @@ data/raw/*
 !data/raw/versiones.json
 .superpowers/
 dist/
+.DS_Store
