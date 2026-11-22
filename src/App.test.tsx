@@ -165,3 +165,14 @@ describe("App: la URL al volver al inicio", () => {
     expect(window.location.hash).toBe("");
   });
 });
+
+describe("App: la mejor racha se relee al volver al inicio", () => {
+  it("una partida libre mejor que la guardada actualiza el marcador", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /modo libre/i }));
+    await perder(usuario);
+    const racha = Number(screen.getByText(/^\d+$/).textContent);
+    await usuario.click(screen.getByRole("button", { name: /volver al inicio/i }));
+    expect(screen.getByText("Mejor racha libre").nextElementSibling).toHaveTextContent(String(racha));
+  });
+});

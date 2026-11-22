@@ -229,3 +229,15 @@ describe("PantallaRonda: el reloj", () => {
     expect(vivas).toMatch(/quedan 5 segundos/i);
   });
 });
+
+describe("PantallaRonda: estructura de la página", () => {
+  it("la pregunta es el encabezado de primer nivel", () => {
+    pintar();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/altitud/i);
+  });
+
+  it("el contenido va dentro de main", () => {
+    pintar();
+    expect(screen.getByRole("main")).toBeInTheDocument();
+  });
+});

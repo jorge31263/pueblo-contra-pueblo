@@ -20,8 +20,8 @@ export function PantallaResumen({
   racha, mejor, modo, semilla, url, ronda, porTiempo, onOtraVez, onInicio,
 }: Props) {
   return (
-    <section className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 px-4 py-12 text-center">
-      <h2 className="text-3xl font-bold text-slate-900">Se acabó</h2>
+    <main className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 px-4 py-12 text-center">
+      <h1 className="text-3xl font-bold text-slate-900">Se acabó</h1>
       {porTiempo && <p className="text-rose-700">Se te acabó el tiempo</p>}
       <p className="text-6xl font-bold tabular-nums text-slate-900">{racha}</p>
       <p className="text-slate-600">
@@ -53,6 +53,6 @@ export function PantallaResumen({
       <button type="button" onClick={onInicio} className="text-sm text-slate-500 underline">
         Volver al inicio
       </button>
-    </section>
+    </main>
   );
 }

@@ -81,7 +81,7 @@ export function PantallaRonda({ ronda, racha, onElegir, segundos, onAgotado }: P
   };
 
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
       <div className="flex items-center justify-center gap-4">
         <p className="text-sm font-medium uppercase tracking-wide text-slate-500">Racha {racha}</p>
         {segundos !== undefined && (
@@ -114,9 +114,9 @@ export function PantallaRonda({ ronda, racha, onElegir, segundos, onAgotado }: P
       <p aria-live="polite" className="sr-only">
         {`Ronda ${racha + 1}. ${etiquetaMetrica(ronda.metrica)} ${ronda.par[0].nombre}, ${ronda.par[0].provincia}, o ${ronda.par[1].nombre}, ${ronda.par[1].provincia}.`}
       </p>
-      <h2 className="text-center text-2xl font-bold text-slate-900 sm:text-3xl">
+      <h1 className="text-center text-2xl font-bold text-slate-900 sm:text-3xl">
         {etiquetaMetrica(ronda.metrica)}
-      </h2>
+      </h1>
 
       <div className="flex flex-col gap-4 sm:flex-row">
         {ronda.par.map((pueblo, indice) => (
@@ -156,6 +156,6 @@ export function PantallaRonda({ ronda, racha, onElegir, segundos, onAgotado }: P
           Toca el que creas que gana. Con teclado, las flechas ← →
         </p>
       )}
-    </section>
+    </main>
   );
 }

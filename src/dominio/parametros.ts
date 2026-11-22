@@ -26,8 +26,8 @@ export const PARAMETROS: Record<Metrica, ParametroMetrica> = {
 /** La racha a partir de la cual la exigencia ya no se estrecha más. */
 export const RACHA_MAS_DIFICIL = 15;
 
-/** Cuántos pares se sortean antes de relajar la exigencia un escalón. */
-export const INTENTOS_POR_NIVEL = 200;
+/** Cuántos pares se sortean antes de bajar un escalón la exigencia. */
+export const INTENTOS_POR_ESCALON = 200;
 
 /**
  * Lo que dura cada ronda en el reto diario. Quince segundos no estorban a

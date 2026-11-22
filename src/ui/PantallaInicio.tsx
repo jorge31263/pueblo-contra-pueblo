@@ -14,7 +14,7 @@ export function PantallaInicio({
   onJugarLibre,
 }: Props) {
   return (
-    <section className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 px-4 py-12 text-center">
+    <main className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 px-4 py-12 text-center">
       <h1 className="text-4xl font-bold text-slate-900">Pueblo contra pueblo</h1>
       <p className="text-lg text-slate-600">
         Dos pueblos, una pregunta. Acierta cuál gana y encadena la racha más larga que puedas.
@@ -52,6 +52,6 @@ export function PantallaInicio({
           <dd className="text-2xl font-bold text-slate-900">{mejorLibre}</dd>
         </div>
       </dl>
-    </section>
+    </main>
   );
 }

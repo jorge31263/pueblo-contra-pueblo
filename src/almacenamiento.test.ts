@@ -65,3 +65,22 @@ describe("cuando el navegador no deja guardar", () => {
     expect(retoDiarioJugado("2026-11-21")).toBe(false);
   });
 });
+
+describe("rachas imposibles", () => {
+  it("ignora una racha manipulada a mano en el navegador", () => {
+    localStorage.setItem("pcp.mejorRacha.diario", "1e21");
+    expect(leerMejorRacha("diario")).toBe(0);
+  });
+
+  it("ignora una racha negativa o absurda", () => {
+    localStorage.setItem("pcp.mejorRacha.libre", "-5");
+    expect(leerMejorRacha("libre")).toBe(0);
+    localStorage.setItem("pcp.mejorRacha.libre", "999999");
+    expect(leerMejorRacha("libre")).toBe(0);
+  });
+
+  it("acepta una racha alta pero posible", () => {
+    guardarMejorRacha("libre", 250);
+    expect(leerMejorRacha("libre")).toBe(250);
+  });
+});

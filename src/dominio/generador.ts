@@ -1,15 +1,14 @@
 import type { Catalogo, Metrica, Pueblo, Ronda } from "./tipos.js";
 import { METRICAS } from "./tipos.js";
 import { elegirUno } from "./aleatorio.js";
-import { estanSeparados } from "./separacion.js";
-import { INTENTOS_POR_NIVEL, RACHA_MAS_DIFICIL } from "./parametros.js";
+import { separadosPor, umbralesDeRelajacion } from "./separacion.js";
+import { INTENTOS_POR_ESCALON } from "./parametros.js";
 
 /**
  * Sortea un par de pueblos que esté lo bastante separado para la racha actual.
  *
- * Si tras un número acotado de intentos no aparece ninguno, relaja la
- * exigencia. Relajar es pedir la separación de una racha MÁS alta, que es la
- * que admite pares más apretados; el último recurso es cualquier par con
+ * Si tras un número acotado de intentos no aparece ninguno, baja un escalón la
+ * separación exigida y vuelve a probar; el último recurso es cualquier par con
  * valores distintos. Nunca gira sin final: con un catálogo degenerado avisa en
  * lugar de colgar la pestaña.
  *
@@ -38,11 +37,11 @@ export function generarRonda(
   for (const dondeBuscar of [disponibles, catalogo]) {
     if (dondeBuscar.length < 2) continue;
     for (const metrica of porOrden) {
-      for (const exigencia of [Math.max(racha, 0), RACHA_MAS_DIFICIL]) {
-        const par = buscarPar(dondeBuscar, aleatorio, metrica, exigencia);
+      for (const umbral of umbralesDeRelajacion(metrica, Math.max(racha, 0))) {
+        const par = buscarPar(dondeBuscar, aleatorio, metrica, umbral);
         if (par !== undefined) return montar(par, metrica);
       }
-      const cualquiera = primerParDistinto(dondeBuscar, metrica);
+      const cualquiera = parDistintoCualquiera(dondeBuscar, metrica, aleatorio);
       if (cualquiera !== undefined) return montar(cualquiera, metrica);
     }
   }
@@ -57,27 +56,34 @@ function buscarPar(
   catalogo: Catalogo,
   aleatorio: () => number,
   metrica: Metrica,
-  racha: number,
+  umbral: number,
 ): [Pueblo, Pueblo] | undefined {
-  for (let intento = 0; intento < INTENTOS_POR_NIVEL; intento += 1) {
+  for (let intento = 0; intento < INTENTOS_POR_ESCALON; intento += 1) {
     const a = elegirUno(catalogo, aleatorio);
     const b = elegirUno(catalogo, aleatorio);
     if (a.id === b.id) continue;
-    if (estanSeparados(a, b, metrica, racha)) return [a, b];
+    if (separadosPor(a, b, metrica, umbral)) return [a, b];
   }
   return undefined;
 }
 
 /**
- * Último recurso: el primer par con valores distintos. Recorre el catálogo en
- * orden en lugar de sortear, para que termine siempre.
+ * Último recurso: cualquier par con valores distintos. Recorre el catálogo
+ * entero para terminar siempre, pero empieza en un punto sorteado: si no, en
+ * un catálogo apelmazado saldría la misma ronda una y otra vez.
  */
-function primerParDistinto(catalogo: Catalogo, metrica: Metrica): [Pueblo, Pueblo] | undefined {
-  for (let i = 0; i < catalogo.length; i += 1) {
-    for (let j = i + 1; j < catalogo.length; j += 1) {
-      const a = catalogo[i]!;
-      const b = catalogo[j]!;
-      if (a[metrica] !== b[metrica]) return [a, b];
+function parDistintoCualquiera(
+  catalogo: Catalogo,
+  metrica: Metrica,
+  aleatorio: () => number,
+): [Pueblo, Pueblo] | undefined {
+  const n = catalogo.length;
+  const desde = Math.floor(aleatorio() * n);
+  for (let p = 0; p < n; p += 1) {
+    for (let q = 1; q < n; q += 1) {
+      const a = catalogo[(desde + p) % n]!;
+      const b = catalogo[(desde + p + q) % n]!;
+      if (a.id !== b.id && a[metrica] !== b[metrica]) return [a, b];
     }
   }
   return undefined;

@@ -108,3 +108,29 @@ describe("generarRonda: métricas sin pares posibles", () => {
     }
   });
 });
+
+describe("generarRonda: el último recurso", () => {
+  // Valores tan juntos que ningún escalón de relajación los acepta.
+  const apelmazado: Pueblo[] = [1000, 1001, 1002, 1003].map((v, i) => ({
+    id: `P${i}`, nombre: `P${i}`, provincia: "P", habitantes: v, altitud: v, extension: v,
+  }));
+
+  it("no devuelve siempre el mismo par", () => {
+    const r = crearAleatorio("recurso");
+    const pares = new Set(
+      Array.from({ length: 50 }, () => {
+        const { par } = generarRonda(apelmazado, r, 30);
+        return [par[0].id, par[1].id].sort().join("-");
+      }),
+    );
+    expect(pares.size).toBeGreaterThan(1);
+  });
+
+  it("sigue sin enfrentar un pueblo contra sí mismo", () => {
+    const r = crearAleatorio("recurso");
+    for (let i = 0; i < 50; i += 1) {
+      const { par } = generarRonda(apelmazado, r, 30);
+      expect(par[0].id).not.toBe(par[1].id);
+    }
+  });
+});

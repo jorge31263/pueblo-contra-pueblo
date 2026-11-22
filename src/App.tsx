@@ -18,14 +18,12 @@ import { PantallaResumen } from "./ui/PantallaResumen.js";
 type EnJuego = { modo: Modo; partida: Partida };
 
 export function App({ catalogo }: { catalogo: Catalogo }) {
-  const elegido = modoDesdeUrl(window.location.hash);
-  const [juego, setJuego] = useState<EnJuego | null>(() =>
-    elegido.modo === "libre"
-      ? { modo: "libre", partida: nuevaPartida(catalogo, elegido.semilla ?? semillaAleatoria()) }
-      : null,
-  );
-  // Cambia cuando termina una partida, para releer lo que haya guardado.
-  const [version, setVersion] = useState(0);
+  const [juego, setJuego] = useState<EnJuego | null>(() => {
+    // Solo al arrancar: el juego no reacciona a cambios del hash en caliente.
+    const elegido = modoDesdeUrl(window.location.hash);
+    if (elegido.modo !== "libre") return null;
+    return { modo: "libre", partida: nuevaPartida(catalogo, elegido.semilla ?? semillaAleatoria()) };
+  });
 
   /**
    * Instalada en el móvil, la app se queda abierta días. Sin volver a mirar la
@@ -54,8 +52,9 @@ export function App({ catalogo }: { catalogo: Catalogo }) {
     if (siguiente.estado === "terminada") {
       if (juego.modo === "diario") marcarRetoDiarioJugado(siguiente.semilla, siguiente.racha);
       else guardarMejorRacha("libre", siguiente.racha);
-      setVersion((v) => v + 1);
     }
+    // Guardar y luego volver a pintar basta: la pantalla de inicio lee lo
+    // guardado en cada render, no hace falta un contador que la fuerce.
     setJuego({ ...juego, partida: siguiente });
   };
 
@@ -70,7 +69,6 @@ export function App({ catalogo }: { catalogo: Catalogo }) {
   if (juego === null) {
     return (
       <PantallaInicio
-        key={version}
         diarioJugado={retoDiarioJugado(semillaDeHoy)}
         mejorDiario={leerMejorRacha("diario")}
         mejorLibre={leerMejorRacha("libre")}

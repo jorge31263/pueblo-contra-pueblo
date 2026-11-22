@@ -4,27 +4,8 @@ Lo que las dos revisiones de rama encontraron y se decidió no arreglar todavía
 Ninguno rompe nada hoy; están aquí para que la decisión sea consciente y no un
 olvido.
 
-## Juego
-
-- **Falta `<h1>` y `<main>`** en las pantallas de ronda y resumen; solo el
-  inicio tiene encabezado de primer nivel.
-- **Una mejor racha manipulada en `localStorage` se muestra tal cual**
-  (`1e+21` pasa el `Number.isInteger`). Autoinfligido, pero un techo lo cierra.
-- **Con racha ≥ 15, los dos escalones de relajación del generador son el mismo
-  valor**, porque la separación exigida ya ha saturado. El escalón intermedio
-  no existe justo donde más se necesitaría.
-- **El último recurso del generador es determinista por métrica**: en un
-  catálogo minúsculo, dos rondas seguidas con la misma métrica darían la misma
-  ronda.
-- **`key={version}` y `modoDesdeUrl` en cada render de `App` son trabajo
-  muerto**, y el segundo engaña a quien lea el componente: no reacciona al
-  hash.
-- **`tsconfig` declara `vitest/globals` con `globals: false`.** Los globales
-  tipan como disponibles pero no existen en ejecución.
-- **El paquete se llama `pueblo-contra-pueblo-datos`**, nombre del pipeline,
-  desde que los dos comparten un solo `package.json`.
-- **`INTENTOS_POR_NIVEL` usa "nivel"**, que el glosario evita para *Ronda*.
-  Aquí significa escalón de relajación; `INTENTOS_POR_ESCALON` lo cerraría.
+Los del juego ya están arreglados. Lo que queda toca el pipeline, que solo se
+ejecuta una vez al año, y la infraestructura de publicación.
 
 ## Pipeline
 

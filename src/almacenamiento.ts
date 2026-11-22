@@ -26,10 +26,18 @@ function escribir(clave: string, valor: string): void {
   }
 }
 
+/**
+ * Nadie encadena mil aciertos, así que una cifra mayor es un valor manipulado
+ * a mano en el navegador y no una racha. Number.isInteger(1e21) es true, de
+ * ahí el techo.
+ */
+const RACHA_MAXIMA_CREIBLE = 1000;
+
 export function leerMejorRacha(modo: Modo): number {
   const bruto = leer(`mejorRacha.${modo}`);
   const racha = Number(bruto);
-  return bruto !== null && Number.isInteger(racha) && racha >= 0 ? racha : 0;
+  const creible = Number.isInteger(racha) && racha >= 0 && racha <= RACHA_MAXIMA_CREIBLE;
+  return bruto !== null && creible ? racha : 0;
 }
 
 export function guardarMejorRacha(modo: Modo, racha: number): void {

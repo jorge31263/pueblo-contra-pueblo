@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { Pueblo } from "./tipos.js";
-import { separacionExigida, estanSeparados } from "./separacion.js";
+import { separacionExigida, estanSeparados, umbralesDeRelajacion } from "./separacion.js";
 
 const pueblo = (p: Partial<Pueblo>): Pueblo => ({
   id: "00000", nombre: "X", provincia: "Y", habitantes: 100, altitud: 100, extension: 10, ...p,
@@ -81,5 +81,29 @@ describe("estanSeparados", () => {
 
   it("no divide por cero cuando un municipio tiene extensión mínima", () => {
     expect(estanSeparados(ext(0.01), ext(100), "extension", 0)).toBe(true);
+  });
+});
+
+describe("umbralesDeRelajacion", () => {
+  it("baja de verdad en cada escalón, también con la racha saturada", () => {
+    for (const racha of [0, 7, 15, 30]) {
+      for (const metrica of ["habitantes", "altitud", "extension"] as const) {
+        const escalones = umbralesDeRelajacion(metrica, racha);
+        expect(escalones.length).toBeGreaterThan(1);
+        for (let i = 1; i < escalones.length; i += 1) {
+          expect(escalones[i]!).toBeLessThan(escalones[i - 1]!);
+        }
+      }
+    }
+  });
+
+  it("empieza por la exigencia de esa racha", () => {
+    expect(umbralesDeRelajacion("altitud", 0)[0]).toBe(separacionExigida("altitud", 0));
+  });
+
+  it("al relajar una proporción nunca baja de 1, que aceptaría cualquier par", () => {
+    for (const umbral of umbralesDeRelajacion("habitantes", 15)) {
+      expect(umbral).toBeGreaterThan(1);
+    }
   });
 });
