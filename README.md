@@ -1,4 +1,4 @@
-<img src="public/iconos/icono.svg" width="96" alt="">
+<img src="public/iconos/icono-192.png" width="96" alt="">
 
 # Pueblo contra pueblo
 
