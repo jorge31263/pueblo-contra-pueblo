@@ -10,9 +10,6 @@ nosotros, y la instalación.
 
 ## Infraestructura
 
-- **`actions/checkout@v4` y `setup-node@v4` apuntan a Node 20**, que GitHub ha
-  puesto en retirada: el runner las fuerza a Node 24 y lo avisa en cada
-  ejecución. No rompe nada hoy; dejará de funcionar solo.
 - **Tras un despliegue, quien ya había entrado puede ver la versión anterior
   hasta diez minutos.** GitHub Pages sirve `index.html` con
   `cache-control: max-age=600` y no deja cambiar esa cabecera. No tiene
