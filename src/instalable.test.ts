@@ -69,3 +69,36 @@ describe("service worker", () => {
     expect(sw).toContain("caches.delete");
   });
 });
+
+describe("lo que el service worker guarda al instalarse", () => {
+  const sw = leer("public/sw.js");
+  const basicos: string[] = JSON.parse(
+    /const BASICOS = (\[[^\]]*\])/.exec(sw)![1]!.replace(/'/g, '"').replace(/,\s*\]/, "]"),
+  );
+
+  it("guarda los iconos, para que la primera visita sin conexión no se quede sin ellos", () => {
+    expect(basicos.some((r) => r.includes("icono-192"))).toBe(true);
+    expect(basicos.some((r) => r.includes("icono-180"))).toBe(true);
+    expect(basicos.some((r) => r.endsWith("icono.svg"))).toBe(true);
+  });
+
+  it("no guarda nada que no exista: un fichero que falta aborta la instalación entera", () => {
+    // cache.addAll falla si una sola petición falla, y entonces el juego se
+    // queda sin caché sin decir nada.
+    //
+    // La página y su raíz no están en public/: las genera Vite a partir del
+    // index.html del repositorio.
+    const generados: Record<string, string> = { "./": "index.html", "./index.html": "index.html" };
+    for (const ruta of basicos) {
+      const enDisco = generados[ruta] ?? `public/${ruta.replace(/^\.\//, "")}`;
+      expect(existsSync(resolve(raiz, enDisco))).toBe(true);
+    }
+  });
+
+  it("todos los iconos del manifiesto están guardados", () => {
+    const manifiesto = JSON.parse(leer("public/manifest.webmanifest"));
+    for (const icono of manifiesto.icons) {
+      expect(basicos).toContain(icono.src);
+    }
+  });
+});

@@ -3,8 +3,18 @@
  * Sube VERSION a mano cuando cambie el snapshot o quieras invalidar todo: al
  * activarse, el service worker borra cualquier caché que no sea la suya.
  */
-const VERSION = "pcp-v1";
-const BASICOS = ["./", "./index.html", "./snapshot.json", "./manifest.webmanifest"];
+const VERSION = "pcp-v2";
+const BASICOS = [
+  "./",
+  "./index.html",
+  "./snapshot.json",
+  "./manifest.webmanifest",
+  "./iconos/icono.svg",
+  "./iconos/icono-180.png",
+  "./iconos/icono-192.png",
+  "./iconos/icono-512.png",
+  "./iconos/mascara-512.png",
+];
 
 self.addEventListener("install", (evento) => {
   evento.waitUntil(
