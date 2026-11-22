@@ -20,6 +20,11 @@ ejecuta una vez al año, y la infraestructura de publicación.
 - **`actions/checkout@v4` y `setup-node@v4` apuntan a Node 20**, que GitHub ha
   puesto en retirada: el runner las fuerza a Node 24 y lo avisa en cada
   ejecución. No rompe nada hoy; dejará de funcionar solo.
+- **Tras un despliegue, quien ya había entrado puede ver la versión anterior
+  hasta diez minutos.** GitHub Pages sirve `index.html` con
+  `cache-control: max-age=600` y no deja cambiar esa cabecera. No tiene
+  arreglo desde aquí: al comprobar un cambio recién desplegado, añade `?v=N` a
+  la URL o no te fíes de lo que veas.
 - **`deploy-pages` falla a veces con "Deployment failed, try again later"**, sin
   que haya cambiado nada. Es transitorio: reintentar el job basta.
 
