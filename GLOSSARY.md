@@ -40,6 +40,7 @@ _Avoid_: holgura, umbral, margen, dificultad, gap
 
 **Partida**:
 Secuencia de rondas que empieza en la primera y acaba en el primer fallo.
+Agotar el tiempo de una ronda es un fallo como cualquier otro.
 _Avoid_: juego, sesión, run
 
 **Racha**:

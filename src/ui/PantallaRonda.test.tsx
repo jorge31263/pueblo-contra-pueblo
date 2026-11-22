@@ -3,7 +3,7 @@ import { render, screen, cleanup, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Ronda, Pueblo } from "../dominio/tipos.js";
 import { PantallaRonda } from "./PantallaRonda.js";
-import { MILISEGUNDOS_DE_REVELADO } from "../dominio/parametros.js";
+import { MILISEGUNDOS_DE_REVELADO, SEGUNDOS_POR_RONDA, SEGUNDOS_DE_AVISO } from "../dominio/parametros.js";
 
 afterEach(() => {
   cleanup();
@@ -177,5 +177,55 @@ describe("PantallaRonda: accesibilidad", () => {
     });
     expect(screen.getByText(/correcto/i)).toBeInTheDocument();
     expect(screen.queryByText(/fallo/i)).not.toBeInTheDocument();
+  });
+});
+
+describe("PantallaRonda: el reloj", () => {
+  const pintarConReloj = () => {
+    const usuario = conRelojesFalsos();
+    const onElegir = vi.fn();
+    const onAgotado = vi.fn();
+    render(
+      <PantallaRonda
+        ronda={ronda}
+        racha={3}
+        segundos={SEGUNDOS_POR_RONDA}
+        onElegir={onElegir}
+        onAgotado={onAgotado}
+      />,
+    );
+    return { usuario, onElegir, onAgotado };
+  };
+
+  it("sin la prop no hay reloj: el modo libre se juega sin agobio", () => {
+    pintar();
+    expect(screen.queryByRole("timer")).not.toBeInTheDocument();
+  });
+
+  it("enseña el tiempo que queda y lo va bajando", () => {
+    pintarConReloj();
+    expect(screen.getByRole("timer")).toHaveTextContent(String(SEGUNDOS_POR_RONDA));
+    act(() => void vi.advanceTimersByTime(3000));
+    expect(screen.getByRole("timer")).toHaveTextContent(String(SEGUNDOS_POR_RONDA - 3));
+  });
+
+  it("al agotarse avisa una sola vez", () => {
+    const { onAgotado } = pintarConReloj();
+    act(() => void vi.advanceTimersByTime(SEGUNDOS_POR_RONDA * 1000 + 2000));
+    expect(onAgotado).toHaveBeenCalledTimes(1);
+  });
+
+  it("el reloj se para durante el revelado", async () => {
+    const { usuario, onAgotado } = pintarConReloj();
+    await usuario.click(screen.getByRole("button", { name: /Pedraza/ }));
+    act(() => void vi.advanceTimersByTime(SEGUNDOS_POR_RONDA * 1000 + 5000));
+    expect(onAgotado).not.toHaveBeenCalled();
+  });
+
+  it("avisa cuando quedan pocos segundos, también a un lector de pantalla", () => {
+    pintarConReloj();
+    act(() => void vi.advanceTimersByTime((SEGUNDOS_POR_RONDA - SEGUNDOS_DE_AVISO) * 1000));
+    const vivas = [...document.querySelectorAll("[aria-live]")].map((n) => n.textContent ?? "").join(" ");
+    expect(vivas).toMatch(/quedan 5 segundos/i);
   });
 });

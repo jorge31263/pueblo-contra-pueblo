@@ -30,6 +30,16 @@ export const RACHA_MAS_DIFICIL = 15;
 export const INTENTOS_POR_NIVEL = 200;
 
 /**
+ * Lo que dura cada ronda en el reto diario. Quince segundos no estorban a
+ * quien sabe, que responde en tres o cuatro, y sí a quien se va a buscarlo
+ * fuera. El modo libre no lleva reloj (ADR 0009).
+ */
+export const SEGUNDOS_POR_RONDA = 15;
+
+/** Cuándo se avisa de que queda poco, también a un lector de pantalla. */
+export const SEGUNDOS_DE_AVISO = 5;
+
+/**
  * Lo que dura el revelado de un acierto antes de pasar de ronda. Con 1.200 ms
  * se quedaba corto para leer las dos cifras: el contador todavía estaba
  * subiendo cuando la pantalla ya cambiaba.

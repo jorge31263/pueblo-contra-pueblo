@@ -5,7 +5,7 @@ import { App } from "./App.js";
 import { catalogoPrueba } from "./dominio/fixtures/catalogo-prueba.js";
 import { marcarRetoDiarioJugado } from "./almacenamiento.js";
 import { semillaDelDia } from "./dominio/semilla.js";
-import { MILISEGUNDOS_DE_REVELADO } from "./dominio/parametros.js";
+import { MILISEGUNDOS_DE_REVELADO, SEGUNDOS_POR_RONDA } from "./dominio/parametros.js";
 
 beforeEach(() => {
   localStorage.clear();
@@ -102,3 +102,25 @@ describe("App", () => {
     expect(screen.getByText(/ya has jugado/i)).toBeInTheDocument();
   });
 });
+
+describe("App: el reloj solo en el reto diario", () => {
+  it("el reto de hoy lleva reloj", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /reto de hoy/i }));
+    expect(screen.getByRole("timer")).toBeInTheDocument();
+  });
+
+  it("el modo libre se juega sin reloj", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /modo libre/i }));
+    expect(screen.queryByRole("timer")).not.toBeInTheDocument();
+  });
+
+  it("agotarse el tiempo termina la partida y lo dice", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /reto de hoy/i }));
+    act(() => void vi.advanceTimersByTime(SEGUNDOS_POR_RONDA * 1000 + 1000));
+    expect(await screen.findByText(/se acabó/i)).toBeInTheDocument();
+    expect(screen.getByText(/se te acabó el tiempo/i)).toBeInTheDocument();
+  });
+})

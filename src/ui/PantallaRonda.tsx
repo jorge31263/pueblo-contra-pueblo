@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Ronda } from "../dominio/tipos.js";
-import { MILISEGUNDOS_DE_REVELADO } from "../dominio/parametros.js";
+import { MILISEGUNDOS_DE_REVELADO, SEGUNDOS_DE_AVISO } from "../dominio/parametros.js";
 import { etiquetaMetrica } from "./etiquetas.js";
 import { TarjetaPueblo } from "./TarjetaPueblo.js";
 
@@ -8,6 +8,9 @@ type Props = {
   ronda: Ronda;
   racha: number;
   onElegir: (eleccion: 0 | 1) => void;
+  /** Segundos por ronda. Sin esto no hay reloj, que es el modo libre. */
+  segundos?: number;
+  onAgotado?: () => void;
 };
 
 /**
@@ -17,8 +20,11 @@ type Props = {
  * Al acertar avisa al padre pasado el revelado y la partida sigue sola. Al
  * fallar no avanza: la pantalla se queda con los dos valores a la vista y el
  * jugador decide cuándo mirar el resultado.
+ *
+ * El reloj, si lo hay, se para en cuanto se elige: el revelado no consume
+ * tiempo de la ronda.
  */
-export function PantallaRonda({ ronda, racha, onElegir }: Props) {
+export function PantallaRonda({ ronda, racha, onElegir, segundos, onAgotado }: Props) {
   const [eleccion, setEleccion] = useState<0 | 1 | null>(null);
   const eleccionRef = useRef<0 | 1 | null>(null);
   const acierto = eleccion !== null && eleccion === ronda.ganador;
@@ -52,6 +58,21 @@ export function PantallaRonda({ ronda, racha, onElegir }: Props) {
     return () => window.removeEventListener("keydown", alPulsar);
   }, []);
 
+  const [restan, setRestan] = useState(segundos ?? 0);
+
+  useEffect(() => setRestan(segundos ?? 0), [ronda, segundos]);
+
+  useEffect(() => {
+    if (segundos === undefined || eleccion !== null) return;
+    const tic = setInterval(() => setRestan((quedan) => Math.max(quedan - 1, 0)), 1000);
+    return () => clearInterval(tic);
+  }, [ronda, segundos, eleccion]);
+
+  useEffect(() => {
+    if (segundos === undefined || eleccion !== null || restan > 0) return;
+    onAgotado?.();
+  }, [restan, segundos, eleccion, onAgotado]);
+
   const revelado = eleccion !== null;
   const elegir = (indice: 0 | 1) => {
     if (eleccionRef.current !== null) return;
@@ -61,14 +82,35 @@ export function PantallaRonda({ ronda, racha, onElegir }: Props) {
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
-      <p className="text-center text-sm font-medium uppercase tracking-wide text-slate-500">
-        Racha {racha}
-      </p>
+      <div className="flex items-center justify-center gap-4">
+        <p className="text-sm font-medium uppercase tracking-wide text-slate-500">Racha {racha}</p>
+        {segundos !== undefined && (
+          <p
+            role="timer"
+            // En el árbol de accesibilidad siempre, para poder consultarlo,
+            // pero sin anunciarse: cantar cada segundo sería insufrible. El
+            // aviso de que queda poco va por la región de abajo.
+            aria-live="off"
+            aria-label={`Quedan ${restan} segundos`}
+            className={`tabular-nums text-sm font-bold ${
+              restan <= SEGUNDOS_DE_AVISO ? "text-rose-600" : "text-slate-400"
+            }`}
+          >
+            {restan}s
+          </p>
+        )}
+      </div>
 
       {/*
         Sin esto, un lector de pantalla oye "Correcto" y luego silencio: la
         pregunta y los dos pueblos cambian sin anunciarse.
       */}
+      <p aria-live="polite" className="sr-only">
+        {segundos !== undefined && !revelado && restan === SEGUNDOS_DE_AVISO
+          ? `Quedan ${SEGUNDOS_DE_AVISO} segundos.`
+          : ""}
+      </p>
+
       <p aria-live="polite" className="sr-only">
         {`Ronda ${racha + 1}. ${etiquetaMetrica(ronda.metrica)} ${ronda.par[0].nombre}, ${ronda.par[0].provincia}, o ${ronda.par[1].nombre}, ${ronda.par[1].provincia}.`}
       </p>

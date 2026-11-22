@@ -10,7 +10,7 @@ Una **ronda** muestra un **par** de pueblos y una **métrica** anunciada
 ("¿Cuál tiene más habitantes?"). Los dos valores están ocultos. El jugador
 elige uno; se revelan los dos con un contador que sube.
 
-- Acierto: la **racha** sube y la partida avanza sola a los 1,2 s.
+- Acierto: la **racha** sube y la partida avanza sola a los 2 s.
 - Fallo: la **partida** termina y aparece el resumen.
 
 La métrica cambia de una ronda a otra, elegida por la semilla. De cada pueblo
@@ -47,12 +47,21 @@ válido, se relaja la exigencia en lugar de seguir buscando.
 Los pares con valores iguales se descartan: una ronda sin respuesta correcta
 no es una ronda. Un pueblo tampoco se repite en dos rondas consecutivas.
 
+### El reloj
+
+En el reto diario cada ronda dura **quince segundos**. Agotarlos cuenta como
+fallo y termina la partida. El reloj se para en cuanto se elige: el revelado
+no consume tiempo (ADR 0009).
+
+El modo libre no lleva reloj.
+
 ### Modos
 
 - **Reto diario**: la semilla es la fecha en hora peninsular (ADR 0007). Un
-  intento por día. Idéntico para todos los jugadores.
-- **Modo libre**: semilla aleatoria, partidas ilimitadas. La semilla se puede
-  compartir por enlace para que otra persona juegue la misma secuencia.
+  intento por día, con reloj. Idéntico para todos los jugadores.
+- **Modo libre**: semilla aleatoria, partidas ilimitadas, sin reloj. La semilla
+  se puede compartir por enlace para que otra persona juegue la misma
+  secuencia.
 
 ### Compartir
 

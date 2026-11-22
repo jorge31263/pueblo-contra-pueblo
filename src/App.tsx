@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Catalogo } from "./dominio/tipos.js";
-import { nuevaPartida, responder, type Partida } from "./dominio/partida.js";
+import { nuevaPartida, responder, agotarTiempo, type Partida } from "./dominio/partida.js";
+import { SEGUNDOS_POR_RONDA } from "./dominio/parametros.js";
 import { semillaDelDia } from "./dominio/semilla.js";
 import { modoDesdeUrl, semillaAleatoria } from "./modos.js";
 import {
@@ -31,15 +32,22 @@ export function App({ catalogo }: { catalogo: Catalogo }) {
   const empezar = (modo: Modo, semilla: string) =>
     setJuego({ modo, partida: nuevaPartida(catalogo, semilla) });
 
-  const alElegir = (eleccion: 0 | 1) => {
+  const terminar = (siguiente: Partida) => {
     if (juego === null) return;
-    const siguiente = responder(juego.partida, eleccion);
     if (siguiente.estado === "terminada") {
       if (juego.modo === "diario") marcarRetoDiarioJugado(siguiente.semilla, siguiente.racha);
       else guardarMejorRacha("libre", siguiente.racha);
       setVersion((v) => v + 1);
     }
     setJuego({ ...juego, partida: siguiente });
+  };
+
+  const alElegir = (eleccion: 0 | 1) => {
+    if (juego !== null) terminar(responder(juego.partida, eleccion));
+  };
+
+  const alAgotarse = () => {
+    if (juego !== null) terminar(agotarTiempo(juego.partida));
   };
 
   if (juego === null) {
@@ -61,6 +69,9 @@ export function App({ catalogo }: { catalogo: Catalogo }) {
         ronda={juego.partida.ronda}
         racha={juego.partida.racha}
         onElegir={alElegir}
+        // El reloj solo aprieta en el reto diario (ADR 0009).
+        segundos={juego.modo === "diario" ? SEGUNDOS_POR_RONDA : undefined}
+        onAgotado={alAgotarse}
       />
     );
   }
@@ -73,6 +84,7 @@ export function App({ catalogo }: { catalogo: Catalogo }) {
       semilla={juego.partida.semilla}
       url={window.location.origin + window.location.pathname}
       ronda={juego.partida.ronda}
+      porTiempo={juego.partida.ultimaRespuesta?.porTiempo === true}
       onOtraVez={() => empezar("libre", semillaAleatoria())}
       onInicio={() => setJuego(null)}
     />

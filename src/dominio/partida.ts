@@ -16,7 +16,7 @@ export type Partida = {
   readonly ronda: Ronda;
   readonly racha: number;
   readonly estado: "jugando" | "terminada";
-  readonly ultimaRespuesta?: { readonly acierto: boolean };
+  readonly ultimaRespuesta?: { readonly acierto: boolean; readonly porTiempo?: boolean };
   /** Interno: el catálogo con el que sigue la partida. */
   readonly catalogo: Catalogo;
 };
@@ -39,6 +39,15 @@ export function nuevaPartida(catalogo: Catalogo, semilla: string): Partida {
     estado: "jugando",
     catalogo,
   };
+}
+
+/**
+ * Se acabó el tiempo de la ronda. Cuenta como fallo y termina la partida, con
+ * la ronda a la vista para que el jugador vea qué se le escapó.
+ */
+export function agotarTiempo(partida: Partida): Partida {
+  if (partida.estado === "terminada") return partida;
+  return { ...partida, estado: "terminada", ultimaRespuesta: { acierto: false, porTiempo: true } };
 }
 
 export function responder(partida: Partida, eleccion: 0 | 1): Partida {

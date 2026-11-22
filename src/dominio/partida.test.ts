@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { nuevaPartida, responder, type Partida } from "./partida.js";
+import { nuevaPartida, responder, agotarTiempo, type Partida } from "./partida.js";
 import { catalogoPrueba } from "./fixtures/catalogo-prueba.js";
 
 const acertar = (p: Partida): Partida => responder(p, p.ronda.ganador);
@@ -103,5 +103,29 @@ describe("responder es una función, no un avance con efectos", () => {
     const repetida = acertar(acertar(acertar(nuevaPartida(catalogoPrueba, "determinista"))));
     expect(directa.ronda).toEqual(repetida.ronda);
     expect(directa.racha).toBe(3);
+  });
+});
+
+describe("agotarTiempo", () => {
+  it("termina la partida y conserva la racha alcanzada", () => {
+    const p = acertar(acertar(nuevaPartida(catalogoPrueba, "reloj")));
+    const final = agotarTiempo(p);
+    expect(final.estado).toBe("terminada");
+    expect(final.racha).toBe(2);
+  });
+
+  it("cuenta como fallo, y deja claro que fue por tiempo", () => {
+    const final = agotarTiempo(nuevaPartida(catalogoPrueba, "reloj"));
+    expect(final.ultimaRespuesta).toEqual({ acierto: false, porTiempo: true });
+  });
+
+  it("conserva la ronda para poder enseñar los dos valores", () => {
+    const p = nuevaPartida(catalogoPrueba, "reloj");
+    expect(agotarTiempo(p).ronda).toEqual(p.ronda);
+  });
+
+  it("sobre una partida terminada no cambia nada", () => {
+    const terminada = fallar(nuevaPartida(catalogoPrueba, "reloj"));
+    expect(agotarTiempo(terminada)).toBe(terminada);
   });
 });

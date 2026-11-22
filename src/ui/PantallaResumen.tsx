@@ -10,17 +10,19 @@ type Props = {
   semilla: string;
   url: string;
   ronda: Ronda;
+  porTiempo: boolean;
   onOtraVez: () => void;
   onInicio: () => void;
 };
 
 /** El final de la partida, con la ronda que la cerró a la vista. */
 export function PantallaResumen({
-  racha, mejor, modo, semilla, url, ronda, onOtraVez, onInicio,
+  racha, mejor, modo, semilla, url, ronda, porTiempo, onOtraVez, onInicio,
 }: Props) {
   return (
     <section className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 px-4 py-12 text-center">
       <h2 className="text-3xl font-bold text-slate-900">Se acabó</h2>
+      {porTiempo && <p className="text-rose-700">Se te acabó el tiempo</p>}
       <p className="text-6xl font-bold tabular-nums text-slate-900">{racha}</p>
       <p className="text-slate-600">
         {racha === 1 ? "acierto seguido" : "aciertos seguidos"}
