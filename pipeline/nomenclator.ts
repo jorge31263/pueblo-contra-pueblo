@@ -26,6 +26,9 @@ const COLUMNAS = {
 
 const HECTAREAS_POR_KM2 = 100;
 
+/** Por debajo de esto, unas cuantas filas raras son ruido y no un síntoma. */
+const MINIMO_PARA_SOSPECHAR = 10;
+
 export type FilaNomenclator = { provincia: string; altitud: number; extension: number };
 
 function aNumero(bruto: string): number | undefined {
@@ -54,6 +57,7 @@ export function leerNomenclator(csv: string): Map<string, FilaNomenclator> {
   }
 
   const municipios = new Map<string, FilaNomenclator>();
+  let sinDatos = 0;
 
   for (const registro of registros) {
     const digitos = registro[COLUMNAS.codigo]?.trim().replace(/\D/g, "");
@@ -63,13 +67,33 @@ export function leerNomenclator(csv: string): Map<string, FilaNomenclator> {
     const altitud = aNumero(registro[COLUMNAS.altitud]?.trim() ?? "");
     const hectareas = aNumero(registro[COLUMNAS.superficie]?.trim() ?? "");
     const provincia = registro[COLUMNAS.provincia]?.trim();
-    if (altitud === undefined || hectareas === undefined || !provincia) continue;
+    if (altitud === undefined || hectareas === undefined || !provincia) {
+      sinDatos += 1;
+      continue;
+    }
+
+    // MUNICIPIOS.csv trae una fila por municipio. Dos filas con el mismo
+    // código significan que el fichero no es el que creemos, y quedarse con
+    // la última en silencio es publicar la cifra equivocada.
+    if (municipios.has(codigo)) {
+      throw new Error(`El municipio ${codigo} aparece dos veces en el Nomenclátor`);
+    }
 
     municipios.set(codigo, {
       provincia,
       altitud: Math.round(altitud),
       extension: Math.round((hectareas / HECTAREAS_POR_KM2) * 100) / 100,
     });
+  }
+
+  // Faltar la altitud de algún municipio suelto es normal; que falten en más
+  // de la mitad significa que esas columnas no son las que creemos.
+  if (sinDatos > MINIMO_PARA_SOSPECHAR && sinDatos > municipios.size) {
+    throw new Error(
+      `${sinDatos} filas del Nomenclátor no traen altitud, superficie o provincia ` +
+        `frente a ${municipios.size} que sí: revisa las columnas ` +
+        `"${COLUMNAS.altitud}" y "${COLUMNAS.superficie}"`,
+    );
   }
 
   return municipios;

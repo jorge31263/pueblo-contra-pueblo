@@ -17,6 +17,9 @@ import { parse } from "csv-parse/sync";
 const COLUMNAS = { municipio: "Municipios", sexo: "Sexo", periodo: "Periodo", total: "Total" } as const;
 const SEXO_TOTAL = "Total";
 
+/** Por debajo de esto, unas cuantas filas raras son ruido y no un síntoma. */
+const MINIMO_PARA_SOSPECHAR = 10;
+
 type FilaPadron = { codigo: string; nombre: string; habitantes: number };
 
 function filasDelPadron(csv: string): FilaPadron[] {
@@ -42,6 +45,7 @@ function filasDelPadron(csv: string): FilaPadron[] {
 
   const filas: FilaPadron[] = [];
   let sinCodigo = 0;
+  let sinCifra = 0;
   for (const registro of totales) {
     const periodo = registro[COLUMNAS.periodo]?.trim();
     if (ultimoPeriodo !== undefined && periodo !== ultimoPeriodo) continue;
@@ -60,15 +64,32 @@ function filasDelPadron(csv: string): FilaPadron[] {
     // fantasma de cero habitantes, y en el juego un cero rompe la proporción
     // de la separación mínima.
     if (total === "") continue;
-    const habitantes = Number(total.replace(/[.\s]/g, ""));
-    if (!Number.isInteger(habitantes) || habitantes <= 0) continue;
+    // El punto es el separador de miles y la coma el decimal, por si algún
+    // día el INE publica la cifra con decimales.
+    const habitantes = Math.round(Number(total.replace(/[.\s]/g, "").replace(",", ".")));
+    // Ilegible no es lo mismo que implausible: un "no disponible" delata un
+    // cambio de formato, y un cero es solo un municipio que no cuenta.
+    if (!Number.isFinite(habitantes)) {
+      sinCifra += 1;
+      continue;
+    }
+    if (habitantes <= 0) continue;
 
     filas.push({ codigo: partes[1]!, nombre: partes[2]!.trim(), habitantes });
   }
 
+  // Una cifra ilegible de vez en cuando es ruido; que haya más ilegibles que
+  // buenas significa que la columna no es la que creemos.
+  if (sinCifra > MINIMO_PARA_SOSPECHAR && sinCifra > filas.length) {
+    throw new Error(
+      `${sinCifra} filas del padrón traen una cifra de habitantes que no se puede leer ` +
+        `frente a ${filas.length} que sí: revisa la columna "${COLUMNAS.total}"`,
+    );
+  }
+
   // Si el formato de la columna cambia, las filas caen en silencio y el cruce
   // con las otras fuentes sale impecable sobre un padrón mutilado.
-  if (sinCodigo > filas.length) {
+  if (sinCodigo > MINIMO_PARA_SOSPECHAR && sinCodigo > filas.length) {
     throw new Error(
       `${sinCodigo} filas del padrón no traen un código de municipio reconocible ` +
         `frente a ${filas.length} que sí: ha cambiado el formato de la columna "${COLUMNAS.municipio}"`,

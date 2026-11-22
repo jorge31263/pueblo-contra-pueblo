@@ -53,3 +53,23 @@ describe("leerNomenclator", () => {
     expect(() => leerNomenclator("COD_INE;NOMBRE_ACTUAL\n01001000000;Alegría\n")).toThrow(/ALTITUD/);
   });
 });
+
+describe("leerNomenclator: ficheros que no son el que esperamos", () => {
+  it("avisa si el mismo municipio aparece dos veces", () => {
+    const dosVeces = fixture + fixture.split("\n").find((l) => l.startsWith("50249")) + "\n";
+    expect(() => leerNomenclator(dosVeces)).toThrow(/50249/);
+  });
+
+  it("avisa cuando casi ninguna fila trae altitud y superficie", () => {
+    // El fichero del IGN usa saltos de línea de Windows: mezclarlos hace que
+    // el parser lea una sola fila y la prueba no probaría nada.
+    const cabecera = fixture.split("\n")[0]!.replace(/\r$/, "");
+    const columnas = cabecera.split(";").length;
+    const filas = Array.from({ length: 40 }, (_, i) => {
+      const celdas = Array.from({ length: columnas }, () => "");
+      celdas[0] = String(10000000000 + i);
+      return celdas.join(";");
+    }).join("\n");
+    expect(() => leerNomenclator(cabecera + "\n" + filas + "\n")).toThrow(/altitud|superficie/i);
+  });
+})

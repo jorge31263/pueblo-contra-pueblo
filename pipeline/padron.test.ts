@@ -66,3 +66,18 @@ describe("leerPadron: datos que no son datos", () => {
     expect(() => leerPadron(cabecera + filas + "\n")).toThrow(/código/i);
   });
 });
+
+describe("leerPadron: cifras que no son enteros limpios", () => {
+  const cabecera = "Municipios;Sexo;Periodo;Total\n";
+
+  it("entiende la coma decimal si el INE la usa", () => {
+    expect(leerPadron(cabecera + "50249 Tabuenca;Total;2025;1.476,0\n").get("50249")).toBe(1476);
+  });
+
+  it("avisa cuando casi ninguna cifra se puede leer", () => {
+    const filas = Array.from({ length: 40 }, (_, i) =>
+      `${String(10000 + i)} Pueblo ${i};Total;2025;no disponible`,
+    ).join("\n");
+    expect(() => leerPadron(cabecera + filas + "\n")).toThrow(/cifra/i);
+  });
+})

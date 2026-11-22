@@ -4,29 +4,9 @@ Lo que las dos revisiones de rama encontraron y se decidió no arreglar todavía
 Ninguno rompe nada hoy; están aquí para que la decisión sea consciente y no un
 olvido.
 
-Los del juego ya están arreglados. Lo que queda toca el pipeline, que solo se
-ejecuta una vez al año, y la infraestructura de publicación.
-
-## Pipeline
-
-- **La coma decimal castellana se descarta en silencio** en el lector del
-  padrón: `"1476,0"` da `NaN` y la fila desaparece sin dejar rastro.
-- **Dos filas `CAPITAL` para el mismo municipio: gana la última**, sin aviso.
-- **`provinciaDe` ya no existe**, pero si vuelve: abortaba el pipeline entero
-  ante un prefijo de provincia desconocido en vez de generar un descarte.
-
-## Infraestructura
-
-- **`actions/checkout@v4` y `setup-node@v4` apuntan a Node 20**, que GitHub ha
-  puesto en retirada: el runner las fuerza a Node 24 y lo avisa en cada
-  ejecución. No rompe nada hoy; dejará de funcionar solo.
-- **Tras un despliegue, quien ya había entrado puede ver la versión anterior
-  hasta diez minutos.** GitHub Pages sirve `index.html` con
-  `cache-control: max-age=600` y no deja cambiar esa cabecera. No tiene
-  arreglo desde aquí: al comprobar un cambio recién desplegado, añade `?v=N` a
-  la URL o no te fíes de lo que veas.
-- **`deploy-pages` falla a veces con "Deployment failed, try again later"**, sin
-  que haya cambiado nada. Es transitorio: reintentar el job basta.
+Los del juego y los del pipeline ya están arreglados. Lo que queda es la
+instalación y la infraestructura de publicación, y dos de los tres de
+infraestructura no dependen de nosotros.
 
 ## Instalación
 
