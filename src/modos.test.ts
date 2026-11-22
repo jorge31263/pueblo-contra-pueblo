@@ -36,3 +36,16 @@ describe("semillaAleatoria", () => {
     expect(new Set(Array.from({ length: 50 }, semillaAleatoria)).size).toBeGreaterThan(40);
   });
 });
+
+describe("modoDesdeUrl: el hash tal y como llega", () => {
+  it("acepta el modo libre en mayúsculas", () => {
+    // Algunos clientes normalizan el hash al reenviar un enlace, y el enlace
+    // compartido llevaría a otra partida en silencio.
+    expect(modoDesdeUrl("#LIBRE=abc123")).toEqual({ modo: "libre", semilla: "abc123" });
+    expect(modoDesdeUrl("#Libre=abc123")).toEqual({ modo: "libre", semilla: "abc123" });
+  });
+
+  it("no toca la semilla, que distingue mayúsculas", () => {
+    expect(modoDesdeUrl("#libre=AbC123")).toEqual({ modo: "libre", semilla: "AbC123" });
+  });
+});

@@ -6,14 +6,6 @@ olvido.
 
 ## Juego
 
-- **El hash se compara sensible a mayúsculas.** `#LIBRE=abc123` cae al reto
-  diario en silencio. Un enlace compartido que pase por un cliente que
-  normalice el hash lleva a otra partida sin avisar.
-- **"Volver al inicio" no limpia el hash.** Tras jugar `#libre=abc123`, recargar
-  vuelve a entrar en esa misma semilla saltándose la pantalla de inicio.
-- **Una pestaña abierta a medianoche sigue ofreciendo el reto de ayer.** La
-  semilla del día se calcula al renderizar y nada vuelve a renderizar por el
-  paso del tiempo.
 - **Falta `<h1>` y `<main>`** en las pantallas de ronda y resumen; solo el
   inicio tiene encabezado de primer nivel.
 - **Una mejor racha manipulada en `localStorage` se muestra tal cual**

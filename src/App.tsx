@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Catalogo } from "./dominio/tipos.js";
 import { nuevaPartida, responder, agotarTiempo, type Partida } from "./dominio/partida.js";
 import { SEGUNDOS_POR_RONDA } from "./dominio/parametros.js";
@@ -27,7 +27,24 @@ export function App({ catalogo }: { catalogo: Catalogo }) {
   // Cambia cuando termina una partida, para releer lo que haya guardado.
   const [version, setVersion] = useState(0);
 
-  const semillaDeHoy = semillaDelDia(new Date());
+  /**
+   * Instalada en el móvil, la app se queda abierta días. Sin volver a mirar la
+   * hora seguiría ofreciendo el reto de ayer, y la racha compartida llevaría
+   * la fecha equivocada: dos personas comparando secuencias distintas.
+   */
+  const [semillaDeHoy, setSemillaDeHoy] = useState(() => semillaDelDia(new Date()));
+
+  useEffect(() => {
+    const mirarLaHora = () => setSemillaDeHoy(semillaDelDia(new Date()));
+    const reloj = setInterval(mirarLaHora, 60_000);
+    window.addEventListener("focus", mirarLaHora);
+    document.addEventListener("visibilitychange", mirarLaHora);
+    return () => {
+      clearInterval(reloj);
+      window.removeEventListener("focus", mirarLaHora);
+      document.removeEventListener("visibilitychange", mirarLaHora);
+    };
+  }, []);
 
   const empezar = (modo: Modo, semilla: string) =>
     setJuego({ modo, partida: nuevaPartida(catalogo, semilla) });
@@ -86,7 +103,11 @@ export function App({ catalogo }: { catalogo: Catalogo }) {
       ronda={juego.partida.ronda}
       porTiempo={juego.partida.ultimaRespuesta?.porTiempo === true}
       onOtraVez={() => empezar("libre", semillaAleatoria())}
-      onInicio={() => setJuego(null)}
+      onInicio={() => {
+        // Sin esto, recargar vuelve a meterte en la misma semilla.
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+        setJuego(null);
+      }}
     />
   );
 }

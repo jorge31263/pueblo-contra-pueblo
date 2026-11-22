@@ -10,12 +10,16 @@ export type ModoElegido = { modo: Modo; semilla?: string };
 
 const SEMILLA_VALIDA = /^[a-z0-9]{3,16}$/i;
 
+const PREFIJO = "libre=";
+
 export function modoDesdeUrl(hash: string): ModoElegido {
   const limpio = hash.replace(/^#/, "");
-  if (limpio === "libre") return { modo: "libre" };
-  if (!limpio.startsWith("libre=")) return { modo: "diario" };
+  // El nombre del modo no distingue mayúsculas porque algunos clientes
+  // normalizan el hash al reenviar un enlace. La semilla sí las distingue.
+  if (limpio.toLowerCase() === "libre") return { modo: "libre" };
+  if (limpio.slice(0, PREFIJO.length).toLowerCase() !== PREFIJO) return { modo: "diario" };
 
-  const semilla = limpio.slice("libre=".length);
+  const semilla = limpio.slice(PREFIJO.length);
   return SEMILLA_VALIDA.test(semilla) ? { modo: "libre", semilla } : { modo: "diario" };
 }
 

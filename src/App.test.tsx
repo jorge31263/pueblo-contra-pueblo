@@ -124,3 +124,44 @@ describe("App: el reloj solo en el reto diario", () => {
     expect(screen.getByText(/se te acabó el tiempo/i)).toBeInTheDocument();
   });
 })
+
+describe("App: el día cambia con la app abierta", () => {
+  it("al pasar la medianoche vuelve a ofrecer el reto, en vez del de ayer", () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    // 21:00 en Madrid del día 21.
+    vi.setSystemTime(new Date("2026-11-21T20:00:00Z"));
+    marcarRetoDiarioJugado(semillaDelDia(new Date()), 4);
+    render(<App catalogo={catalogoPrueba} />);
+    expect(screen.getByText(/ya has jugado/i)).toBeInTheDocument();
+
+    act(() => {
+      // 00:30 en Madrid: ya es el día 22.
+      vi.setSystemTime(new Date("2026-11-21T23:30:00Z"));
+      vi.advanceTimersByTime(60_000);
+    });
+    expect(screen.getByRole("button", { name: /reto de hoy/i })).toBeInTheDocument();
+  });
+
+  it("también se entera al volver a la app desde otra pestaña", () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date("2026-11-21T20:00:00Z"));
+    marcarRetoDiarioJugado(semillaDelDia(new Date()), 4);
+    render(<App catalogo={catalogoPrueba} />);
+
+    act(() => {
+      vi.setSystemTime(new Date("2026-11-21T23:30:00Z"));
+      window.dispatchEvent(new Event("focus"));
+    });
+    expect(screen.getByRole("button", { name: /reto de hoy/i })).toBeInTheDocument();
+  });
+});
+
+describe("App: la URL al volver al inicio", () => {
+  it("limpia la semilla, para que recargar no te meta en la misma partida", async () => {
+    window.location.hash = "#libre=abc123";
+    const usuario = pintar();
+    await perder(usuario);
+    await usuario.click(screen.getByRole("button", { name: /volver al inicio/i }));
+    expect(window.location.hash).toBe("");
+  });
+});
