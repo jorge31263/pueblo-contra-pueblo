@@ -19,3 +19,7 @@ es tiempo de pensar.
 El modo libre se queda sin reloj a propósito: es donde se aprenden los pueblos
 sin que nadie te meta prisa, y donde se practica para el reto del día
 siguiente.
+
+Los quince segundos se eligieron a ojo y se confirmaron jugando: dan tiempo a
+leer los dos nombres y a pensar un poco, y aun así se nota que el tiempo se
+acaba. No son un tanteo pendiente de afinar.
