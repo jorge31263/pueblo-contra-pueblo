@@ -3,6 +3,7 @@ import { render, screen, cleanup, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Ronda, Pueblo } from "../dominio/tipos.js";
 import { PantallaRonda } from "./PantallaRonda.js";
+import { MILISEGUNDOS_DE_REVELADO } from "../dominio/parametros.js";
 
 afterEach(() => {
   cleanup();
@@ -95,7 +96,7 @@ describe("PantallaRonda", () => {
     const { onElegir } = pintar();
     await usuario.click(screen.getByRole("button", { name: /Pedraza/ }));
     expect(onElegir).not.toHaveBeenCalled();
-    act(() => void vi.advanceTimersByTime(1200));
+    act(() => void vi.advanceTimersByTime(MILISEGUNDOS_DE_REVELADO));
     expect(onElegir).toHaveBeenCalledTimes(1);
     expect(onElegir).toHaveBeenCalledWith(1);
   });
@@ -144,7 +145,10 @@ describe("PantallaRonda: accesibilidad", () => {
     const usuario = userEvent.setup();
     pintar();
     await usuario.click(screen.getByRole("button", { name: /Pedraza/ }));
-    expect(await screen.findByRole("button", { name: /1066 m/ })).toBeInTheDocument();
+    // El contador tarda medio revelado en llegar a su cifra.
+    expect(
+      await screen.findByRole("button", { name: /1066 m/ }, { timeout: MILISEGUNDOS_DE_REVELADO }),
+    ).toBeInTheDocument();
   });
 
   it("no pierde el foco al revelar", async () => {

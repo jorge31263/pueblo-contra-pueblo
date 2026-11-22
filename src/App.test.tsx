@@ -5,6 +5,7 @@ import { App } from "./App.js";
 import { catalogoPrueba } from "./dominio/fixtures/catalogo-prueba.js";
 import { marcarRetoDiarioJugado } from "./almacenamiento.js";
 import { semillaDelDia } from "./dominio/semilla.js";
+import { MILISEGUNDOS_DE_REVELADO } from "./dominio/parametros.js";
 
 beforeEach(() => {
   localStorage.clear();
@@ -37,7 +38,7 @@ const perder = async (usuario: ReturnType<typeof userEvent.setup>) => {
       await usuario.click(verResultado);
       return;
     }
-    act(() => void vi.advanceTimersByTime(1300));
+    act(() => void vi.advanceTimersByTime(MILISEGUNDOS_DE_REVELADO + 100));
   }
   throw new Error("cuarenta rondas seguidas acertando eligiendo siempre la izquierda");
 };

@@ -29,5 +29,9 @@ export const RACHA_MAS_DIFICIL = 15;
 /** Cuántos pares se sortean antes de relajar la exigencia un escalón. */
 export const INTENTOS_POR_NIVEL = 200;
 
-/** Lo que tarda el revelado de un acierto antes de pasar de ronda. */
-export const MILISEGUNDOS_DE_REVELADO = 1200;
+/**
+ * Lo que dura el revelado de un acierto antes de pasar de ronda. Con 1.200 ms
+ * se quedaba corto para leer las dos cifras: el contador todavía estaba
+ * subiendo cuando la pantalla ya cambiaba.
+ */
+export const MILISEGUNDOS_DE_REVELADO = 2000;
