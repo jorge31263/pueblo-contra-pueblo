@@ -1,3 +1,5 @@
+import { ComoSeJuega } from "./ComoSeJuega.js";
+
 type Props = {
   diarioJugado: boolean;
   mejorDiario: number;
@@ -52,6 +54,8 @@ export function PantallaInicio({
           <dd className="text-2xl font-bold text-slate-900">{mejorLibre}</dd>
         </div>
       </dl>
+
+      <ComoSeJuega />
     </main>
   );
 }

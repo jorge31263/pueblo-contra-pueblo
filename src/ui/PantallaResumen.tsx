@@ -2,6 +2,7 @@ import type { Ronda } from "../dominio/tipos.js";
 import type { Modo } from "../almacenamiento.js";
 import { formatearValor } from "./etiquetas.js";
 import { BotonCompartir } from "./BotonCompartir.js";
+import { ComoSeJuega } from "./ComoSeJuega.js";
 
 type Props = {
   racha: number;
@@ -50,9 +51,12 @@ export function PantallaResumen({
           Otra vez
         </button>
       )}
-      <button type="button" onClick={onInicio} className="text-sm text-slate-500 underline">
-        Volver al inicio
-      </button>
+      <div className="flex items-center gap-6">
+        <button type="button" onClick={onInicio} className="text-sm text-slate-500 underline">
+          Volver al inicio
+        </button>
+        <ComoSeJuega />
+      </div>
     </main>
   );
 }

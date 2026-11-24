@@ -176,3 +176,24 @@ describe("App: la mejor racha se relee al volver al inicio", () => {
     expect(screen.getByText("Mejor racha libre").nextElementSibling).toHaveTextContent(String(racha));
   });
 });
+
+describe("App: las reglas", () => {
+  it("se pueden consultar desde la portada", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /cómo se juega/i }));
+    expect(screen.getByRole("dialog", { name: /cómo se juega/i })).toBeInTheDocument();
+  });
+
+  /** Al perder es cuando uno se pregunta por qué le han puesto ese par. */
+  it("se pueden consultar al acabar la partida", async () => {
+    const usuario = pintar();
+    await perder(usuario);
+    expect(screen.getByRole("button", { name: /cómo se juega/i })).toBeInTheDocument();
+  });
+
+  it("no estorban durante una ronda, que lleva reloj", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /reto de hoy/i }));
+    expect(screen.queryByRole("button", { name: /cómo se juega/i })).not.toBeInTheDocument();
+  });
+});
