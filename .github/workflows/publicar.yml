@@ -18,11 +18,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  publicar:
+  # Construir y desplegar van en jobs separados a propósito. Juntos, el
+  # despliegue preguntaba por el artefacto medio segundo después de terminar
+  # de subirlo y la API todavía no lo veía ("Found 0 artifacts"): un fallo que
+  # parecía aleatorio. Y reintentar el job subía un segundo artefacto con el
+  # mismo nombre, que deja la ejecución rota sin remedio. Separados, el
+  # despliegue espera a que el otro job acabe y se puede reintentar solo.
+  construir:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.despliegue.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -39,6 +42,14 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           path: dist
+
+  desplegar:
+    if: github.event_name != 'pull_request'
+    needs: construir
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
       - id: despliegue
-        if: github.event_name != 'pull_request'
         uses: actions/deploy-pages@v5

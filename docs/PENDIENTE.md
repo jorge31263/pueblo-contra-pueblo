@@ -15,8 +15,6 @@ nosotros, y la instalación.
   `cache-control: max-age=600` y no deja cambiar esa cabecera. No tiene
   arreglo desde aquí: al comprobar un cambio recién desplegado, añade `?v=N` a
   la URL o no te fíes de lo que veas.
-- **`deploy-pages` falla a veces con "Deployment failed, try again later"**, sin
-  que haya cambiado nada. Es transitorio: reintentar el job basta.
 
 ## Instalación
 
