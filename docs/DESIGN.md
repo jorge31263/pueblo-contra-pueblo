@@ -61,7 +61,13 @@ El modo libre no lleva reloj.
   intento por día, con reloj. Idéntico para todos los jugadores.
 - **Modo libre**: semilla aleatoria, partidas ilimitadas, sin reloj. La semilla
   se puede compartir por enlace para que otra persona juegue la misma
-  secuencia.
+  secuencia. Se puede dejar a medias, y la racha que llevaras cuenta: dejarlo
+  no es fallar, y aquí no hay nada que falsear.
+
+El reto diario no se puede dejar a medias. Poder abandonar la ronda que no te
+sabes y empezar de nuevo convertiría el intento único en intentos infinitos.
+Instalado en el móvil no hay botón de atrás del navegador, así que esa salida
+es la única que hay.
 
 ### Compartir
 

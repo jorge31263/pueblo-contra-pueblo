@@ -11,6 +11,13 @@ type Props = {
   /** Segundos por ronda. Sin esto no hay reloj, que es el modo libre. */
   segundos?: number;
   onAgotado?: () => void;
+  /**
+   * Salida a mitad de partida, solo donde tiene sentido. Instalado en el móvil
+   * no hay barra de navegador, así que sin esto la única forma de salir de una
+   * ronda es responder. En el reto diario no se ofrece: poder abandonar la
+   * ronda que no te sabes y volver a empezar se carga el intento único.
+   */
+  onDejarlo?: () => void;
 };
 
 /**
@@ -24,7 +31,14 @@ type Props = {
  * El reloj, si lo hay, se para en cuanto se elige: el revelado no consume
  * tiempo de la ronda.
  */
-export function PantallaRonda({ ronda, racha, onElegir, segundos, onAgotado }: Props) {
+export function PantallaRonda({
+  ronda,
+  racha,
+  onElegir,
+  segundos,
+  onAgotado,
+  onDejarlo,
+}: Props) {
   const [eleccion, setEleccion] = useState<0 | 1 | null>(null);
   const eleccionRef = useRef<0 | 1 | null>(null);
   const acierto = eleccion !== null && eleccion === ronda.ganador;
@@ -155,6 +169,18 @@ export function PantallaRonda({ ronda, racha, onElegir, segundos, onAgotado }: P
         <p className="text-center text-sm text-slate-400">
           Toca el que creas que gana. Con teclado, las flechas ← →
         </p>
+      )}
+
+      {/* Después de los pueblos: el tabulador llega a lo de jugar antes que a
+          lo de irse. */}
+      {onDejarlo !== undefined && (
+        <button
+          type="button"
+          onClick={onDejarlo}
+          className="mx-auto text-sm text-slate-400 underline hover:text-slate-900"
+        >
+          Dejar la partida
+        </button>
       )}
     </main>
   );

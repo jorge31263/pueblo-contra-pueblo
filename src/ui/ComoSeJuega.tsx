@@ -42,7 +42,8 @@ export function ComoSeJuega() {
         </p>
         <p>
           <strong className="font-semibold text-slate-900">El modo libre</strong> no lleva
-          reloj y se juega las veces que quieras. Cada partida tiene una semilla que puedes
+          reloj, se juega las veces que quieras y se puede dejar a medias sin perder
+          lo que lleves acertado. Cada partida tiene una semilla que puedes
           pasarle a alguien para que le toquen tus mismas rondas.
         </p>
         <p>

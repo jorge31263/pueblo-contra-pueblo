@@ -65,6 +65,22 @@ export function App({ catalogo, fuentes = {} }: { catalogo: Catalogo; fuentes?: 
     if (juego !== null) terminar(responder(juego.partida, eleccion));
   };
 
+  const volverAlInicio = () => {
+    // Sin esto, recargar vuelve a meterte en la misma semilla.
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    setJuego(null);
+  };
+
+  /**
+   * Dejarlo no es fallar: los aciertos que llevabas se guardan. En el modo
+   * libre no hay nada que falsear, la racha es la que has hecho.
+   */
+  const dejarlo = () => {
+    if (juego === null) return;
+    guardarMejorRacha("libre", juego.partida.racha);
+    volverAlInicio();
+  };
+
   const alAgotarse = () => {
     if (juego !== null) terminar(agotarTiempo(juego.partida));
   };
@@ -91,6 +107,7 @@ export function App({ catalogo, fuentes = {} }: { catalogo: Catalogo; fuentes?: 
         // El reloj solo aprieta en el reto diario (ADR 0009).
         segundos={juego.modo === "diario" ? SEGUNDOS_POR_RONDA : undefined}
         onAgotado={alAgotarse}
+        onDejarlo={juego.modo === "libre" ? dejarlo : undefined}
       />
     );
   }
@@ -106,11 +123,7 @@ export function App({ catalogo, fuentes = {} }: { catalogo: Catalogo; fuentes?: 
       ronda={juego.partida.ronda}
       porTiempo={juego.partida.ultimaRespuesta?.porTiempo === true}
       onOtraVez={() => empezar("libre", semillaAleatoria())}
-      onInicio={() => {
-        // Sin esto, recargar vuelve a meterte en la misma semilla.
-        history.replaceState(null, "", window.location.pathname + window.location.search);
-        setJuego(null);
-      }}
+      onInicio={volverAlInicio}
     />
   );
 }

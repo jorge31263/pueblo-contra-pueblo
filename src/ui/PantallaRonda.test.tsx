@@ -241,3 +241,28 @@ describe("PantallaRonda: estructura de la página", () => {
     expect(screen.getByRole("main")).toBeInTheDocument();
   });
 });
+
+describe("PantallaRonda: dejar la partida", () => {
+  it("sin salida ofrecida no se pinta ninguna", () => {
+    pintar();
+    expect(screen.queryByRole("button", { name: /dejar la partida/i })).not.toBeInTheDocument();
+  });
+
+  it("pulsar la salida avisa al padre", async () => {
+    const usuario = userEvent.setup();
+    const onDejarlo = vi.fn();
+    pintar({ onDejarlo });
+    await usuario.click(screen.getByRole("button", { name: /dejar la partida/i }));
+    expect(onDejarlo).toHaveBeenCalledOnce();
+  });
+
+  /**
+   * Instalado en el móvil no hay barra de navegador ni botón de atrás: sin
+   * esta salida, la única forma de salir de una ronda es responder.
+   */
+  it("la salida no se cuela en el orden de tabulación antes que los pueblos", () => {
+    pintar({ onDejarlo: vi.fn() });
+    const botones = screen.getAllByRole("button");
+    expect(botones[0]).toHaveTextContent(/tabuenca/i);
+  });
+});

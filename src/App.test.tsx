@@ -5,6 +5,7 @@ import { App } from "./App.js";
 import { catalogoPrueba } from "./dominio/fixtures/catalogo-prueba.js";
 import { marcarRetoDiarioJugado } from "./almacenamiento.js";
 import { semillaDelDia } from "./dominio/semilla.js";
+import { nuevaPartida } from "./dominio/partida.js";
 import { MILISEGUNDOS_DE_REVELADO, SEGUNDOS_POR_RONDA } from "./dominio/parametros.js";
 
 beforeEach(() => {
@@ -219,5 +220,32 @@ describe("App: de dónde salen los datos", () => {
     expect(
       screen.queryByRole("button", { name: /de dónde salen los datos/i }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("App: dejar una partida libre", () => {
+  it("el reto diario no se puede dejar a medias: el intento es único", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /reto de hoy/i }));
+    expect(screen.queryByRole("button", { name: /dejar la partida/i })).not.toBeInTheDocument();
+  });
+
+  it("en modo libre se deja y vuelves al inicio", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /modo libre/i }));
+    await usuario.click(screen.getByRole("button", { name: /dejar la partida/i }));
+    expect(screen.getByRole("heading", { name: /pueblo contra pueblo/i })).toBeInTheDocument();
+  });
+
+  /** Los aciertos que llevabas son tuyos: dejarlo no es fallar. */
+  it("lo acertado antes de dejarlo cuenta como mejor racha", async () => {
+    window.location.hash = "#libre=abc123";
+    const partida = nuevaPartida(catalogoPrueba, "abc123");
+    const ganador = partida.ronda.par[partida.ronda.ganador]!;
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: new RegExp(ganador.nombre, "i") }));
+    act(() => void vi.advanceTimersByTime(MILISEGUNDOS_DE_REVELADO + 100));
+    await usuario.click(screen.getByRole("button", { name: /dejar la partida/i }));
+    expect(screen.getByText("Mejor racha libre").nextElementSibling).toHaveTextContent("1");
   });
 });
