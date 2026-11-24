@@ -4,6 +4,7 @@ import { formatearValor } from "./etiquetas.js";
 import { BotonCompartir } from "./BotonCompartir.js";
 import { ComoSeJuega } from "./ComoSeJuega.js";
 import { DeDondeSalenLosDatos } from "./DeDondeSalenLosDatos.js";
+import { AvisoLegal } from "./AvisoLegal.js";
 import type { Fuentes } from "../catalogo.js";
 
 type Props = {
@@ -61,6 +62,7 @@ export function PantallaResumen({
       <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
         <ComoSeJuega />
         <DeDondeSalenLosDatos fuentes={fuentes} />
+        <AvisoLegal />
       </div>
     </main>
   );

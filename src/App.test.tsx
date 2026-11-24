@@ -249,3 +249,17 @@ describe("App: dejar una partida libre", () => {
     expect(screen.getByText("Mejor racha libre").nextElementSibling).toHaveTextContent("1");
   });
 });
+
+describe("App: el aviso legal", () => {
+  it("se consulta desde la portada", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /aviso legal/i }));
+    expect(screen.getByRole("dialog", { name: /aviso legal/i })).toBeInTheDocument();
+  });
+
+  it("se consulta al acabar la partida", async () => {
+    const usuario = pintar();
+    await perder(usuario);
+    expect(screen.getByRole("button", { name: /aviso legal/i })).toBeInTheDocument();
+  });
+});
