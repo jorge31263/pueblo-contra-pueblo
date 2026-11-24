@@ -34,10 +34,36 @@ export function validarCatalogo(datos: unknown): Catalogo {
   return pueblos as Catalogo;
 }
 
-export async function cargarCatalogo(url = "./snapshot.json"): Promise<Catalogo> {
+/** De dónde salen las cifras y de cuándo son, tal como lo dejó el pipeline. */
+export type Fuentes = {
+  generadoEl?: string;
+  padron?: string;
+  ngmep?: string;
+};
+
+/**
+ * La procedencia se lee con la mano abierta, al revés que los pueblos: un
+ * snapshot al que le falte se juega igual, así que aquí no se valida nada, se
+ * coge lo que haya. Lo que no está, no se enseña.
+ */
+export function leerFuentes(datos: unknown): Fuentes {
+  const d = datos as { generadoEl?: unknown; fuentes?: { padron?: unknown; ngmep?: unknown } };
+  const texto = (valor: unknown) =>
+    typeof valor === "string" && valor.length > 0 ? valor : undefined;
+  return {
+    generadoEl: texto(d?.generadoEl),
+    padron: texto(d?.fuentes?.padron),
+    ngmep: texto(d?.fuentes?.ngmep),
+  };
+}
+
+export async function cargarSnapshot(
+  url = "./snapshot.json",
+): Promise<{ catalogo: Catalogo; fuentes: Fuentes }> {
   const respuesta = await fetch(url);
   if (!respuesta.ok) {
     throw new Error(`No he podido cargar los pueblos (${respuesta.status})`);
   }
-  return validarCatalogo(await respuesta.json());
+  const datos: unknown = await respuesta.json();
+  return { catalogo: validarCatalogo(datos), fuentes: leerFuentes(datos) };
 }

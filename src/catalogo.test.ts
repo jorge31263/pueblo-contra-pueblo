@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validarCatalogo } from "./catalogo.js";
+import { validarCatalogo, leerFuentes } from "./catalogo.js";
 import snapshot from "../public/snapshot.json";
 
 const catalogo = validarCatalogo(snapshot);
@@ -47,5 +47,25 @@ describe("validarCatalogo", () => {
     }));
     pueblos[7] = { ...pueblos[7]!, altitud: undefined as unknown as number };
     expect(() => validarCatalogo({ pueblos })).toThrow(/no tienen la forma esperada/);
+  });
+});
+
+describe("leerFuentes", () => {
+  it("saca del snapshot real la fecha y las dos ediciones", () => {
+    const fuentes = leerFuentes(snapshot);
+    expect(fuentes.generadoEl).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(fuentes.padron).toMatch(/^\d{4}$/);
+    expect(fuentes.ngmep).toMatch(/^\d{4}-\d{2}$/);
+  });
+
+  /**
+   * La procedencia es información, no requisito: un snapshot sin ella se puede
+   * jugar igual. Reventar aquí dejaría el juego en la pantalla de error por un
+   * dato que no hace falta para jugar.
+   */
+  it("un snapshot sin metadatos no rompe nada", () => {
+    expect(leerFuentes({ pueblos: [] })).toEqual({});
+    expect(leerFuentes(null)).toEqual({});
+    expect(leerFuentes({ generadoEl: 7, fuentes: { padron: "" } })).toEqual({});
   });
 });

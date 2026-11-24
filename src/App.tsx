@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Catalogo } from "./dominio/tipos.js";
+import type { Fuentes } from "./catalogo.js";
 import { nuevaPartida, responder, agotarTiempo, type Partida } from "./dominio/partida.js";
 import { SEGUNDOS_POR_RONDA } from "./dominio/parametros.js";
 import { semillaDelDia } from "./dominio/semilla.js";
@@ -17,7 +18,9 @@ import { PantallaResumen } from "./ui/PantallaResumen.js";
 
 type EnJuego = { modo: Modo; partida: Partida };
 
-export function App({ catalogo }: { catalogo: Catalogo }) {
+// `fuentes` es informativa: un snapshot sin procedencia se juega igual, así
+// que su ausencia no puede impedir que el juego arranque.
+export function App({ catalogo, fuentes = {} }: { catalogo: Catalogo; fuentes?: Fuentes }) {
   const [juego, setJuego] = useState<EnJuego | null>(() => {
     // Solo al arrancar: el juego no reacciona a cambios del hash en caliente.
     const elegido = modoDesdeUrl(window.location.hash);
@@ -69,6 +72,7 @@ export function App({ catalogo }: { catalogo: Catalogo }) {
   if (juego === null) {
     return (
       <PantallaInicio
+        fuentes={fuentes}
         diarioJugado={retoDiarioJugado(semillaDeHoy)}
         mejorDiario={leerMejorRacha("diario")}
         mejorLibre={leerMejorRacha("libre")}
@@ -93,6 +97,7 @@ export function App({ catalogo }: { catalogo: Catalogo }) {
 
   return (
     <PantallaResumen
+      fuentes={fuentes}
       racha={juego.partida.racha}
       mejor={leerMejorRacha(juego.modo)}
       modo={juego.modo}

@@ -197,3 +197,27 @@ describe("App: las reglas", () => {
     expect(screen.queryByRole("button", { name: /cómo se juega/i })).not.toBeInTheDocument();
   });
 });
+
+describe("App: de dónde salen los datos", () => {
+  it("se consulta desde la portada, con la fecha que trae el snapshot", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const usuario = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<App catalogo={catalogoPrueba} fuentes={{ padron: "2025" }} />);
+    await usuario.click(screen.getByRole("button", { name: /de dónde salen los datos/i }));
+    expect(screen.getByRole("dialog").textContent).toContain("2025");
+  });
+
+  it("se consulta al acabar la partida", async () => {
+    const usuario = pintar();
+    await perder(usuario);
+    expect(screen.getByRole("button", { name: /de dónde salen los datos/i })).toBeInTheDocument();
+  });
+
+  it("no durante una ronda, que lleva reloj", async () => {
+    const usuario = pintar();
+    await usuario.click(screen.getByRole("button", { name: /reto de hoy/i }));
+    expect(
+      screen.queryByRole("button", { name: /de dónde salen los datos/i }),
+    ).not.toBeInTheDocument();
+  });
+});

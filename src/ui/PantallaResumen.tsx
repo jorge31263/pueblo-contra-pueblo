@@ -3,8 +3,11 @@ import type { Modo } from "../almacenamiento.js";
 import { formatearValor } from "./etiquetas.js";
 import { BotonCompartir } from "./BotonCompartir.js";
 import { ComoSeJuega } from "./ComoSeJuega.js";
+import { DeDondeSalenLosDatos } from "./DeDondeSalenLosDatos.js";
+import type { Fuentes } from "../catalogo.js";
 
 type Props = {
+  fuentes: Fuentes;
   racha: number;
   mejor: number;
   modo: Modo;
@@ -18,6 +21,7 @@ type Props = {
 
 /** El final de la partida, con la ronda que la cerró a la vista. */
 export function PantallaResumen({
+  fuentes,
   racha, mejor, modo, semilla, url, ronda, porTiempo, onOtraVez, onInicio,
 }: Props) {
   return (
@@ -51,11 +55,12 @@ export function PantallaResumen({
           Otra vez
         </button>
       )}
-      <div className="flex items-center gap-6">
-        <button type="button" onClick={onInicio} className="text-sm text-slate-500 underline">
-          Volver al inicio
-        </button>
+      <button type="button" onClick={onInicio} className="text-sm text-slate-500 underline">
+        Volver al inicio
+      </button>
+      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
         <ComoSeJuega />
+        <DeDondeSalenLosDatos fuentes={fuentes} />
       </div>
     </main>
   );

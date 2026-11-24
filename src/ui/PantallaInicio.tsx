@@ -1,6 +1,9 @@
 import { ComoSeJuega } from "./ComoSeJuega.js";
+import { DeDondeSalenLosDatos } from "./DeDondeSalenLosDatos.js";
+import type { Fuentes } from "../catalogo.js";
 
 type Props = {
+  fuentes: Fuentes;
   diarioJugado: boolean;
   mejorDiario: number;
   mejorLibre: number;
@@ -9,6 +12,7 @@ type Props = {
 };
 
 export function PantallaInicio({
+  fuentes,
   diarioJugado,
   mejorDiario,
   mejorLibre,
@@ -55,7 +59,10 @@ export function PantallaInicio({
         </div>
       </dl>
 
-      <ComoSeJuega />
+      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+        <ComoSeJuega />
+        <DeDondeSalenLosDatos fuentes={fuentes} />
+      </div>
     </main>
   );
 }

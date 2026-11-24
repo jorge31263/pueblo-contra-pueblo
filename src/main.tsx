@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App.js";
-import { cargarCatalogo } from "./catalogo.js";
+import { cargarSnapshot } from "./catalogo.js";
 import { Pie } from "./ui/Pie.js";
 import "./estilos.css";
 
@@ -22,11 +22,11 @@ registrarCacheOffline();
 
 const raiz = createRoot(document.getElementById("raiz")!);
 
-cargarCatalogo()
-  .then((catalogo) =>
+cargarSnapshot()
+  .then(({ catalogo, fuentes }) =>
     raiz.render(
       <StrictMode>
-        <App catalogo={catalogo} />
+        <App catalogo={catalogo} fuentes={fuentes} />
         <Pie />
       </StrictMode>,
     ),
