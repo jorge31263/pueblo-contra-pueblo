@@ -102,3 +102,14 @@ export function fallosDeContraste(raiz: Element, minimo = MINIMO_AA): Fallo[] {
   }
   return fallos;
 }
+
+/**
+ * Los fallos en una línea cada uno, o cadena vacía si no hay ninguno. Las
+ * pruebas lo comparan con "" para que el error diga qué texto falla y con qué
+ * razón, en vez de un `0 !== 1` que no orienta a nadie.
+ */
+export function informeDeContraste(raiz: Element, minimo = MINIMO_AA): string {
+  return fallosDeContraste(raiz, minimo)
+    .map((f) => `"${f.texto}" ${f.color} sobre ${f.fondo} da ${f.razon}:1`)
+    .join("\n");
+}

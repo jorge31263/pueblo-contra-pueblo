@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import type { Ronda, Pueblo } from "../dominio/tipos.js";
 import { PantallaRonda } from "./PantallaRonda.js";
 import { MILISEGUNDOS_DE_REVELADO, SEGUNDOS_POR_RONDA, SEGUNDOS_DE_AVISO } from "../dominio/parametros.js";
+import { informeDeContraste, MINIMO_AA } from "../pruebas/contraste.js";
 
 afterEach(() => {
   cleanup();
@@ -264,5 +265,45 @@ describe("PantallaRonda: dejar la partida", () => {
     pintar({ onDejarlo: vi.fn() });
     const botones = screen.getAllByRole("button");
     expect(botones[0]).toHaveTextContent(/tabuenca/i);
+  });
+});
+
+/**
+ * El detector de impeccable mide esta pantalla al publicar, pero solo como la
+ * encuentra al cargar: con los valores ocultos y el reloj entero. Revelar o
+ * dejar que baje el tiempo cambia los colores, y a eso no llega.
+ */
+describe("PantallaRonda: contraste", () => {
+  it(`con los valores ocultos llega al mínimo AA de ${MINIMO_AA}:1`, () => {
+    const { container } = render(<PantallaRonda ronda={ronda} racha={3} onElegir={vi.fn()} />);
+    expect(informeDeContraste(container)).toBe("");
+  });
+
+  it("y con la salida a mitad de partida ofrecida", () => {
+    const { container } = render(
+      <PantallaRonda ronda={ronda} racha={3} onElegir={vi.fn()} onDejarlo={vi.fn()} />,
+    );
+    expect(informeDeContraste(container)).toBe("");
+  });
+
+  it("y una vez revelados los dos valores, que pinta de verde al ganador", async () => {
+    const usuario = conRelojesFalsos();
+    const { container } = render(<PantallaRonda ronda={ronda} racha={3} onElegir={vi.fn()} />);
+    await usuario.click(screen.getByRole("button", { name: /tabuenca/i }));
+    act(() => void vi.advanceTimersByTime(MILISEGUNDOS_DE_REVELADO));
+
+    expect(screen.getByText(/tu elección/i)).toBeInTheDocument();
+    expect(informeDeContraste(container)).toBe("");
+  });
+
+  it("y con el reloj en rojo, que es cuando el aviso tiene que leerse", () => {
+    vi.useFakeTimers();
+    const { container } = render(
+      <PantallaRonda ronda={ronda} racha={3} onElegir={vi.fn()} segundos={SEGUNDOS_POR_RONDA} />,
+    );
+    act(() => void vi.advanceTimersByTime((SEGUNDOS_POR_RONDA - SEGUNDOS_DE_AVISO) * 1000));
+
+    expect(screen.getByLabelText(`Quedan ${SEGUNDOS_DE_AVISO} segundos`)).toBeInTheDocument();
+    expect(informeDeContraste(container)).toBe("");
   });
 });

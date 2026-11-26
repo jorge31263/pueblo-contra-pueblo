@@ -3,7 +3,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Ronda, Pueblo } from "../dominio/tipos.js";
 import { PantallaResumen } from "./PantallaResumen.js";
-import { fallosDeContraste, MINIMO_AA } from "../pruebas/contraste.js";
+import { informeDeContraste, MINIMO_AA } from "../pruebas/contraste.js";
 
 afterEach(cleanup);
 
@@ -28,9 +28,6 @@ const pintar = (props: Partial<Parameters<typeof PantallaResumen>[0]> = {}) =>
     />,
   );
 
-const comoTexto = (fallos: ReturnType<typeof fallosDeContraste>) =>
-  fallos.map((f) => `"${f.texto}" ${f.color} sobre ${f.fondo} da ${f.razon}:1`).join("\n");
-
 /**
  * El detector de impeccable, que es quien vigila esto en la publicación,
  * carga URLs y al resumen solo se llega jugando. Así que esta pantalla se
@@ -39,18 +36,17 @@ const comoTexto = (fallos: ReturnType<typeof fallosDeContraste>) =>
 describe("PantallaResumen: contraste", () => {
   it(`todo su texto llega al mínimo AA de ${MINIMO_AA}:1`, () => {
     const { container } = pintar();
-    const fallos = fallosDeContraste(container);
-    expect(comoTexto(fallos)).toBe("");
+    expect(informeDeContraste(container)).toBe("");
   });
 
   it("también cuando la partida se acabó por tiempo", () => {
     const { container } = pintar({ porTiempo: true });
-    expect(comoTexto(fallosDeContraste(container))).toBe("");
+    expect(informeDeContraste(container)).toBe("");
   });
 
   it("también en modo libre, que añade el botón de otra vez", () => {
     const { container } = pintar({ modo: "libre" });
-    expect(comoTexto(fallosDeContraste(container))).toBe("");
+    expect(informeDeContraste(container)).toBe("");
   });
 
   it.each(["Cómo se juega", "De dónde salen los datos", "Aviso legal"])(
@@ -62,7 +58,7 @@ describe("PantallaResumen: contraste", () => {
 
       const panel = screen.getByRole("dialog");
       expect(panel).toHaveAccessibleName(nombre);
-      expect(comoTexto(fallosDeContraste(panel))).toBe("");
+      expect(informeDeContraste(panel)).toBe("");
     },
   );
 });
