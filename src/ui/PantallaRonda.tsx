@@ -107,7 +107,7 @@ export function PantallaRonda({
             aria-live="off"
             aria-label={`Quedan ${restan} segundos`}
             className={`tabular-nums text-sm font-bold ${
-              restan <= SEGUNDOS_DE_AVISO ? "text-rose-600" : "text-slate-400"
+              restan <= SEGUNDOS_DE_AVISO ? "text-rose-600" : "text-slate-500"
             }`}
           >
             {restan}s
@@ -166,7 +166,7 @@ export function PantallaRonda({
       )}
 
       {!revelado && (
-        <p className="text-center text-sm text-slate-400">
+        <p className="text-center text-sm text-slate-500">
           Toca el que creas que gana. Con teclado, las flechas ← →
         </p>
       )}
@@ -177,7 +177,7 @@ export function PantallaRonda({
         <button
           type="button"
           onClick={onDejarlo}
-          className="mx-auto text-sm text-slate-400 underline hover:text-slate-900"
+          className="mx-auto text-sm text-slate-500 underline hover:text-slate-900"
         >
           Dejar la partida
         </button>

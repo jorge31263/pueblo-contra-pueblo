@@ -97,7 +97,7 @@ export function Panel({ etiqueta, titulo, children }: Props) {
               <button
                 type="button"
                 onClick={cerrar}
-                className="-m-2 shrink-0 rounded-full p-2 text-2xl leading-none text-slate-400 hover:text-slate-900"
+                className="-m-2 shrink-0 rounded-full p-2 text-2xl leading-none text-slate-500 hover:text-slate-900"
               >
                 <span aria-hidden="true">×</span>
                 <span className="sr-only">Cerrar</span>

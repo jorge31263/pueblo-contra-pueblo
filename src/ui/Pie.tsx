@@ -5,7 +5,7 @@
  */
 export function Pie() {
   return (
-    <footer className="mx-auto max-w-3xl px-4 pb-10 text-center text-xs leading-relaxed text-slate-400">
+    <footer className="mx-auto max-w-3xl px-4 pb-10 text-center text-xs leading-relaxed text-slate-500">
       <p>
         Habitantes del padrón del{" "}
         <a href="https://www.ine.es" className="underline hover:text-slate-600">

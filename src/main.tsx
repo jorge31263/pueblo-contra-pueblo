@@ -38,7 +38,7 @@ cargarSnapshot()
         <p className="mx-auto max-w-md px-4 py-16 text-center text-slate-600">
           No he podido cargar los pueblos. Prueba a recargar la página.
           <br />
-          <span className="text-sm text-slate-400">
+          <span className="text-sm text-slate-500">
             {error instanceof Error ? error.message : String(error)}
           </span>
         </p>
