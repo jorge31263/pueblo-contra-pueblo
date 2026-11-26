@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /*
+   * Evita que la última línea de un párrafo se quede con una palabra suelta,
+   * que deja un hueco debajo del bloque. Importa sobre todo a lo ancho de un
+   * móvil, donde el texto va a cuatro o cinco palabras por línea.
+   *
+   * Los navegadores que no lo entienden lo ignoran y parten como siempre.
+   */
+  body {
+    text-wrap: pretty;
+  }
+}
