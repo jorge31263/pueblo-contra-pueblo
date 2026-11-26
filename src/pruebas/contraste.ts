@@ -80,14 +80,19 @@ function conTextoPropio(raiz: Element): Element[] {
   );
 }
 
-export type Fallo = { texto: string; color: string; fondo: string; razon: number };
+/**
+ * Un texto que no llega al mínimo. No se llama fallo a propósito: en este
+ * juego un fallo es lo que hace el jugador al equivocarse de pueblo, y la
+ * palabra ya está cogida (ver el glosario, *Partida*).
+ */
+export type Hallazgo = { texto: string; color: string; fondo: string; razon: number };
 
 /**
  * Todo texto que no llegue al mínimo. El fondo por defecto es blanco y el
  * color por defecto negro, que es lo que hereda la página sin clase propia.
  */
-export function fallosDeContraste(raiz: Element, minimo = MINIMO_AA): Fallo[] {
-  const fallos: Fallo[] = [];
+export function hallazgosDeContraste(raiz: Element, minimo = MINIMO_AA): Hallazgo[] {
+  const hallazgos: Hallazgo[] = [];
   for (const elemento of conTextoPropio(raiz)) {
     // Un icono marcado como decorativo no se lee: no tiene que contrastar.
     if (elemento.closest('[aria-hidden="true"]') !== null) continue;
@@ -97,19 +102,19 @@ export function fallosDeContraste(raiz: Element, minimo = MINIMO_AA): Fallo[] {
     const razon = contraste(color, fondo);
     if (razon < minimo) {
       const texto = (elemento.textContent ?? "").trim().slice(0, 40);
-      fallos.push({ texto, color, fondo, razon: Math.round(razon * 100) / 100 });
+      hallazgos.push({ texto, color, fondo, razon: Math.round(razon * 100) / 100 });
     }
   }
-  return fallos;
+  return hallazgos;
 }
 
 /**
- * Los fallos en una línea cada uno, o cadena vacía si no hay ninguno. Las
+ * Los hallazgos en una línea cada uno, o cadena vacía si no hay ninguno. Las
  * pruebas lo comparan con "" para que el error diga qué texto falla y con qué
  * razón, en vez de un `0 !== 1` que no orienta a nadie.
  */
 export function informeDeContraste(raiz: Element, minimo = MINIMO_AA): string {
-  return fallosDeContraste(raiz, minimo)
-    .map((f) => `"${f.texto}" ${f.color} sobre ${f.fondo} da ${f.razon}:1`)
+  return hallazgosDeContraste(raiz, minimo)
+    .map((h) => `"${h.texto}" ${h.color} sobre ${h.fondo} da ${h.razon}:1`)
     .join("\n");
 }

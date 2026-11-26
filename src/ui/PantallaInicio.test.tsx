@@ -22,7 +22,8 @@ const pintar = (props: Partial<Parameters<typeof PantallaInicio>[0]> = {}) =>
 /**
  * El detector de impeccable ya mide esta pantalla al publicar, pero solo en
  * la forma con la que carga: el aviso de reto jugado y los paneles abiertos
- * no los ve, y un fallo aquí no debería esperar al despliegue para salir.
+ * no los ve, y un incumplimiento aquí no debería esperar al despliegue para
+ * salir.
  */
 describe("PantallaInicio: contraste", () => {
   it(`todo su texto llega al mínimo AA de ${MINIMO_AA}:1`, () => {

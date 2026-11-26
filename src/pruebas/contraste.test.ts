@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { colorDeClase, contraste, fallosDeContraste } from "./contraste.js";
+import { colorDeClase, contraste, hallazgosDeContraste } from "./contraste.js";
 
 describe("colorDeClase", () => {
   it("resuelve un color de la paleta de Tailwind", () => {
@@ -45,29 +45,29 @@ const pintar = (html: string): Element => {
   return div;
 };
 
-describe("fallosDeContraste", () => {
+describe("hallazgosDeContraste", () => {
   it("delata un gris que no llega al mínimo", () => {
-    const fallos = fallosDeContraste(pintar('<p class="text-slate-400">Fuentes</p>'));
-    expect(fallos).toHaveLength(1);
-    expect(fallos[0]).toMatchObject({ texto: "Fuentes", color: "#94a3b8", razon: 2.56 });
+    const hallazgos = hallazgosDeContraste(pintar('<p class="text-slate-400">Fuentes</p>'));
+    expect(hallazgos).toHaveLength(1);
+    expect(hallazgos[0]).toMatchObject({ texto: "Fuentes", color: "#94a3b8", razon: 2.56 });
   });
 
   it("acepta el mismo texto un tono más oscuro", () => {
-    expect(fallosDeContraste(pintar('<p class="text-slate-500">Fuentes</p>'))).toEqual([]);
+    expect(hallazgosDeContraste(pintar('<p class="text-slate-500">Fuentes</p>'))).toEqual([]);
   });
 
   it("hereda el fondo del antepasado que lo pone", () => {
     // Blanco sobre blanco sería invisible; sobre el botón oscuro es correcto.
     const html = '<div class="bg-slate-900"><span class="text-white">Compartir</span></div>';
-    expect(fallosDeContraste(pintar(html))).toEqual([]);
-    expect(fallosDeContraste(pintar('<span class="text-white">Compartir</span>'))).toHaveLength(1);
+    expect(hallazgosDeContraste(pintar(html))).toEqual([]);
+    expect(hallazgosDeContraste(pintar('<span class="text-white">Compartir</span>'))).toHaveLength(1);
   });
 
   it("no mira los contenedores, solo lo que tiene texto propio", () => {
-    expect(fallosDeContraste(pintar('<div class="text-slate-900"><p>Hola</p></div>'))).toEqual([]);
+    expect(hallazgosDeContraste(pintar('<div class="text-slate-900"><p>Hola</p></div>'))).toEqual([]);
   });
 
   it("deja en paz lo que está marcado como decorativo", () => {
-    expect(fallosDeContraste(pintar('<span aria-hidden="true" class="text-slate-200">×</span>'))).toEqual([]);
+    expect(hallazgosDeContraste(pintar('<span aria-hidden="true" class="text-slate-200">×</span>'))).toEqual([]);
   });
 });
