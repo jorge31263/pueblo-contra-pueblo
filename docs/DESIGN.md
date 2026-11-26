@@ -115,8 +115,60 @@ no lo impidan.
   teclado.
 - Los datos viajan en un snapshot generado y versionado en el repo.
 - Jugable entero con teclado; acierto y fallo nunca indicados solo por color.
+- Ningún texto por debajo de 4,5:1 de contraste, en ninguna pantalla ni en
+  ningún estado (ver *Contraste*).
 - Todo el texto de cara al jugador, en castellano.
 - La terminología del código sigue el glosario, incluidas sus listas `_Avoid_`.
+
+## Contraste
+
+**Ningún texto baja de 4,5:1 sobre su fondo.** Es el mínimo de la WCAG 2.1 nivel
+AA para texto normal, aplicado también al texto grande, al que la norma le
+permitiría 3:1. Un número de racha a 60 px con un gris flojo cumpliría la norma
+y seguiría leyéndose mal al sol, que es donde se juega el reto diario.
+
+La regla salió de encontrarse con que no se cumplía: `text-slate-400` sobre
+blanco da 2,56:1, y estaba en el pie con las fuentes, en el contador de
+segundos, en el enlace de dejar la partida y en la × de cerrar un panel. El
+gris secundario del juego es `slate-500` (4,76:1 sobre blanco), y los enlaces
+secundarios oscurecen a `slate-900` al pasar por encima.
+
+Hay un margen que conviene conocer antes de tocar nada: en la tarjeta del
+ganador revelado la provincia es `slate-500` sobre `emerald-50`, y eso da
+**4,52:1**. Son dos centésimas sobre el mínimo. Oscurecer ese fondo un solo
+paso, a `emerald-100`, lo baja a 4,2:1 y lo incumple.
+
+### Cómo se sujeta
+
+Ninguna prueba de las que había veía esto, porque el color no está en el
+comportamiento. Se vigila en dos capas, que cubren cosas distintas:
+
+| Capa | Qué mira | Qué no alcanza |
+|---|---|---|
+| Detector en el CI | La página construida y servida, tal como carga | Cualquier estado al que se llegue pulsando o esperando |
+| Pruebas de contraste | El DOM pintado de las tres pantallas, estado a estado | Lo que dependa de la hoja de estilos real |
+
+El detector es `impeccable detect`, en el job `construir` de
+`.github/workflows/publicar.yml`, antes de subir el artefacto: un fallo de
+contraste no llega a desplegarse. Escanea el inicio y, por el hash
+`#libre=...`, una ronda. La versión va fijada; sin fijar, una regla nueva aguas
+arriba rompe una publicación sin que nadie haya tocado el juego.
+
+Las pruebas viven en `src/pruebas/contraste.ts` y cubren lo que el detector no
+carga: el aviso de reto ya jugado, los tres paneles abiertos, los valores
+revelados, el reloj en rojo y el resumen entero, al que solo se llega jugando.
+
+jsdom no carga la hoja de Tailwind, así que `getComputedStyle` no sabe de qué
+color es nada. En vez de eso se leen las clases y se resuelven contra la paleta
+de Tailwind, que es de donde salen los colores. El color y el fondo se heredan
+del antepasado que los pone: por eso `text-white` dentro de `bg-slate-900` sale
+bien y ese mismo blanco suelto sobre la página sale mal. Lo que lleva
+`aria-hidden` no se mide, porque no se lee.
+
+Consecuencia práctica: **un color nuevo se mide, no se elige a ojo**. Y una
+prueba de contraste que nunca ha fallado no demuestra nada, así que al
+escribirlas se comprueban al revés, estropeando el color a propósito y viendo
+caer exactamente los casos que deben caer.
 
 ## El snapshot
 
