@@ -46,12 +46,20 @@ jobs:
         run: |
           npx vite preview --port 4173 &
           npx --yes wait-on -t 60000 http://localhost:4173
-          npx --yes impeccable@4.11.1 detect --github \
-            http://localhost:4173 \
-            'http://localhost:4173/#libre=abc123'
+          # A lo ancho de un escritorio y a lo ancho de un móvil. El móvil es
+          # el sitio principal del juego, y lo que solo se estrecha ahí no se
+          # ve escaneando a 1280.
+          for ancho in 1280x800 390x844; do
+            # --no-advisory: las notas de tipografía no tumban nada y, en
+            # cada ejecución, enseñan a ignorar las anotaciones. Se ven en
+            # local con `npx impeccable detect`.
+            npx --yes impeccable@4.11.1 detect --github --no-advisory --viewport "$ancho" \
+              http://localhost:4173 \
+              'http://localhost:4173/#libre=abc123'
+          done
           # Sin hallazgos el detector no imprime nada, y un paso verde
           # mudo no distingue "ha mirado" de "no ha corrido".
-          echo 'Sin anti-patrones en el inicio ni en la ronda.'
+          echo 'Sin anti-patrones en el inicio ni en la ronda, ni a 1280 ni a 390.'
 
       - uses: actions/configure-pages@v6
         if: github.event_name != 'pull_request'
