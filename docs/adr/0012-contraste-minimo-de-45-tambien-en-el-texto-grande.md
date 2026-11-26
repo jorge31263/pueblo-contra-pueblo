@@ -38,6 +38,17 @@ no se llega por URL. El resumen solo aparece después de fallar una ronda, y el
 reloj en rojo, los valores revelados y los paneles abiertos exigen pulsar o
 esperar. Habría dado por buena una pantalla entera sin mirarla.
 
+Matiz, porque se probó: *imposible* no es. El detector tiene un modo `--cdp`
+que, en vez de cargar una URL, se engancha a una página ya abierta de un
+Chromium y la escanea tal como está. Levantando Chrome con
+`--remote-debugging-port`, llevándolo hasta el resumen y apuntando ahí
+`detect --cdp 9222`, la pantalla se escanea y los incumplimientos salen
+—comprobado inyectando un gris malo en la página viva—. Lo que no compensa es
+automatizarlo: haría falta un guion que juegue la partida, pulsando "Ver
+resultado" y contando con el orden de los botones, o sea una pieza que se
+rompe cada vez que alguien cambie un texto, para cubrir una pantalla que las
+pruebas ya miden. Queda escrito por si algún día hace falta mirarla a mano.
+
 Solo con pruebas: jsdom no carga la hoja de Tailwind, así que `getComputedStyle`
 devuelve vacío y no hay nada que medir. La salida es leer las clases del DOM
 pintado y resolverlas contra la paleta de Tailwind, que es de donde salen los
