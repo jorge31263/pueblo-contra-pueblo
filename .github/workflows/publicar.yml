@@ -49,6 +49,9 @@ jobs:
           npx --yes impeccable@4.11.1 detect --github \
             http://localhost:4173 \
             'http://localhost:4173/#libre=abc123'
+          # Sin hallazgos el detector no imprime nada, y un paso verde
+          # mudo no distingue "ha mirado" de "no ha corrido".
+          echo 'Sin anti-patrones en el inicio ni en la ronda.'
 
       - uses: actions/configure-pages@v6
         if: github.event_name != 'pull_request'
