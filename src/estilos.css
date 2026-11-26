@@ -13,4 +13,15 @@
   body {
     text-wrap: pretty;
   }
+
+  /*
+   * Los titulares parten en líneas de largo parecido en vez de llenar la
+   * primera y dejar una palabra abajo: "Pueblo contra pueblo" y la pregunta
+   * de la ronda son los que se parten en el móvil.
+   */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
 }
