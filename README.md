@@ -54,7 +54,7 @@ No hay servidor ni base de datos. El catálogo viaja como un JSON estático, las
 
 - [GLOSSARY.md](GLOSSARY.md): cómo se llama cada cosa, y qué palabras no usar.
 - [docs/DESIGN.md](docs/DESIGN.md): las reglas del juego y la forma del catálogo.
-- [docs/adr/](docs/adr): once decisiones con su porqué. La octava desmiente a la quinta.
+- [docs/adr/](docs/adr): doce decisiones con su porqué. La octava desmiente a la quinta.
 - [docs/PENDIENTE.md](docs/PENDIENTE.md): lo que dos revisiones encontraron y se decidió dejar para luego.
 
 ## Fuentes y licencia

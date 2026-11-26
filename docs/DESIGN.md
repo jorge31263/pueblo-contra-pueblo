@@ -124,8 +124,9 @@ no lo impidan.
 
 **Ningún texto baja de 4,5:1 sobre su fondo.** Es el mínimo de la WCAG 2.1 nivel
 AA para texto normal, aplicado también al texto grande, al que la norma le
-permitiría 3:1. Un número de racha a 60 px con un gris flojo cumpliría la norma
-y seguiría leyéndose mal al sol, que es donde se juega el reto diario.
+permitiría 3:1 (ADR 0012). Un número de racha a 60 px con un gris flojo
+cumpliría la norma y seguiría leyéndose mal al sol, que es donde se juega el
+reto diario.
 
 La regla salió de encontrarse con que no se cumplía: `text-slate-400` sobre
 blanco da 2,56:1, y estaba en el pie con las fuentes, en el contador de
