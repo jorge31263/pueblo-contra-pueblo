@@ -4,9 +4,9 @@ Lo que las dos revisiones de rama encontraron y se decidió no arreglar todavía
 Ninguno rompe nada hoy; están aquí para que la decisión sea consciente y no un
 olvido.
 
-Los del juego y los del pipeline ya están arreglados. Lo que queda es la
-infraestructura de publicación, donde dos de los tres no dependen de
-nosotros, y la instalación.
+Los del juego y los del pipeline ya están arreglados. Lo que queda es de la
+infraestructura de publicación, que no está en nuestra mano, y de la
+instalación.
 
 ## Infraestructura
 
