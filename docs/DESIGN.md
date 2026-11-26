@@ -197,3 +197,27 @@ frontera entre los dos subsistemas y lo único que comparten.
 - `altitud`: metros sobre el nivel del mar que el IGN da al municipio.
 - `extension`: km² con dos decimales.
 - `provincia`: en la forma oficial del IGN, bilingüe donde la tiene.
+
+## Las decisiones
+
+Este documento cuenta cómo es el juego; los [ADR](./adr) cuentan por qué, y
+sobre todo qué se descartó a cambio. Se citan a lo largo del texto, y aquí
+están todos.
+
+| # | Decisión |
+|---|---|
+| [0001](./adr/0001-elegir-entre-dos-pueblos-ocultos.md) | La ronda es elegir entre dos pueblos ocultos |
+| [0002](./adr/0002-catalogo-limitado-a-menos-de-20000-habitantes.md) | El catálogo solo incluye municipios de menos de 20.000 habitantes |
+| [0003](./adr/0003-datos-en-snapshot-estatico-sin-backend.md) | Los datos viven en un snapshot estático y el juego no tiene backend |
+| [0004](./adr/0004-separacion-minima-decreciente-en-la-generacion-del-par.md) | Los pares se generan con una separación mínima decreciente, no al azar |
+| [0005](./adr/0005-extension-calculada-desde-los-limites-del-cnig.md) | ~~La extensión se calcula a partir de los límites municipales del CNIG~~ — sustituida por la 0008 |
+| [0006](./adr/0006-solo-nombre-y-provincia-en-pantalla.md) | En pantalla solo aparecen el nombre y la provincia |
+| [0007](./adr/0007-el-dia-del-reto-diario-es-la-hora-peninsular.md) | El día del reto diario se calcula en hora peninsular española |
+| [0008](./adr/0008-extension-y-altitud-del-nomenclator-del-ign.md) | La extensión y la altitud salen del Nomenclátor del IGN |
+| [0009](./adr/0009-reloj-por-ronda-solo-en-el-reto-diario.md) | El reto diario lleva reloj por ronda; el modo libre, no |
+| [0010](./adr/0010-las-reglas-se-abren-encima-del-juego.md) | Las reglas se abren encima del juego, no en una página aparte |
+| [0011](./adr/0011-los-errores-de-datos-se-avisan-por-los-issues.md) | Los errores en los datos se avisan por los issues de GitHub |
+| [0012](./adr/0012-contraste-minimo-de-45-tambien-en-el-texto-grande.md) | El contraste mínimo es 4,5:1, también en el texto grande |
+
+La 0008 desmiente a la 0005: la premisa de la quinta era falsa y se dejó en pie
+para que se vea el error, no para seguirla.
