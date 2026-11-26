@@ -36,6 +36,20 @@ jobs:
       - run: npm test
       - run: npx tsc --noEmit
       - run: npm run build
+
+      # El contraste y el tamaño del texto solo se miden en la página pintada:
+      # escanear los .tsx no habría visto el gris de los textos menores, que
+      # llevaba tiempo por debajo del mínimo de la WCAG. Por eso se revisa lo
+      # construido y servido, y antes de subir el artefacto: así un fallo de
+      # accesibilidad no llega a desplegarse.
+      - name: Revisar la accesibilidad de lo construido
+        run: |
+          npx vite preview --port 4173 &
+          npx --yes wait-on -t 60000 http://localhost:4173
+          npx --yes impeccable@4.11.1 detect --github \
+            http://localhost:4173 \
+            'http://localhost:4173/#libre=abc123'
+
       - uses: actions/configure-pages@v6
         if: github.event_name != 'pull_request'
       - uses: actions/upload-pages-artifact@v5
