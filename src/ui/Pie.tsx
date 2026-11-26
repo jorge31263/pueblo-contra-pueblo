@@ -8,11 +8,11 @@ export function Pie() {
     <footer className="mx-auto max-w-3xl px-4 pb-10 text-center text-xs leading-relaxed text-slate-500">
       <p>
         Habitantes del padrón del{" "}
-        <a href="https://www.ine.es" className="underline hover:text-slate-600">
+        <a href="https://www.ine.es" className="underline hover:text-slate-900">
           INE
         </a>
         . Altitud y extensión del Nomenclátor Geográfico del{" "}
-        <a href="https://www.ign.es" className="underline hover:text-slate-600">
+        <a href="https://www.ign.es" className="underline hover:text-slate-900">
           ign.es
         </a>
         .
